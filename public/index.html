@@ -36,7 +36,8 @@
             -webkit-text-size-adjust: 100%;
         }
 
-        body.modal-open .floating-call { display: none !important; }
+        /* モーダル表示中は常設ボタンを非表示 */
+        body.modal-open .floating-contact-wrap { display: none !important; }
         body.modal-open { overflow: hidden !important; }
 
         .container { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
@@ -54,20 +55,32 @@
         .nav-menu { display: flex; gap: 24px; align-items: center; }
         .nav-menu a { text-decoration: none; color: var(--text-main); font-size: 0.95rem; font-weight: 500; }
         
-        /* ボタンデザインの完全・最終統一（白文字強制） */
+        /* ボタンデザインの統一 */
         .btn-call, .btn-mail, .submit-btn {
             height: 56px; width: 280px; padding: 0 24px; border-radius: 50px;
             font-size: 1rem; font-weight: 700; display: inline-flex !important; align-items: center; justify-content: center; gap: 12px; 
             transition: 0.3s; text-decoration: none; cursor: pointer; border: none;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); font-family: inherit;
-            color: #ffffff !important; /* 絶対に白文字 */
+            color: #ffffff !important;
         }
         .btn-call { background: #25d366; }
         .btn-mail, .submit-btn { background: var(--primary); }
-        
         .btn-call:hover, .btn-mail:hover, .submit-btn:hover { transform: scale(1.03); filter: brightness(1.05); }
 
-        .floating-call { position: fixed; bottom: 30px; right: 20px; z-index: 10002; display: none; }
+        /* 浮動アクションボタン (FAB) - 円形アイコンのみで省スペース化 */
+        .floating-contact-wrap {
+            position: fixed; bottom: 30px; right: 20px; z-index: 10002;
+            display: none; flex-direction: column; gap: 12px;
+        }
+        .floating-btn {
+            width: 56px; height: 56px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+            transition: 0.3s; cursor: pointer; border: none; text-decoration: none;
+        }
+        .floating-btn.call { background: #25d366; }
+        .floating-btn.mail { background: var(--primary); }
+        .floating-btn:hover { transform: scale(1.1); filter: brightness(1.1); }
 
         .hamburger { display: none; background: transparent; border: none; width: 44px; height: 44px; z-index: 10001; cursor: pointer; padding: 0; }
         .hamburger span { display: block; width: 26px; height: 2px; background: var(--primary); margin: 6px auto; transition: 0.3s; }
@@ -85,8 +98,6 @@
         .hero-desc { font-size: 1.25rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.8; }
 
         section { padding: 100px 0; }
-        
-        /* ラベルデザインの統一（サービスタイトルと同期） */
         .section-label { 
             color: var(--primary); font-weight: 700; font-size: 1.2rem; letter-spacing: 0.05em; 
             display: block; margin-bottom: 16px; text-align: center; font-family: 'Inter', sans-serif;
@@ -147,7 +158,7 @@
             header { height: 60px; }
             .logo img { height: 36px; }
             section { padding: 4.5rem 20px !important; }
-            .floating-call { display: block; }
+            .floating-contact-wrap { display: flex; }
             .hero-title { font-size: 1.5rem !important; }
             .hero-desc { font-size: 1rem !important; }
             .services-grid { grid-template-columns: 1fr; }
@@ -191,8 +202,9 @@
         </div>
     </header>
 
-    <div class="floating-call">
-        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
+    <div class="floating-contact-wrap" id="floating-contact-wrap">
+        <a href="tel:09032032724" class="floating-btn call" aria-label="電話で相談"><i class="fas fa-phone"></i></a>
+        <button class="floating-btn mail open-modal-btn" aria-label="メールでお問い合わせ"><i class="fas fa-envelope"></i></button>
     </div>
 
     <main>
