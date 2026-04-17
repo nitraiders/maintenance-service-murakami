@@ -37,7 +37,6 @@
             -webkit-text-size-adjust: 100%;
         }
 
-        /* 黄金比を死守するためのスクロール固定 */
         body.modal-open { overflow: hidden !important; }
 
         .container { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
@@ -60,7 +59,12 @@
             font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
             box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); border: none; cursor: pointer;
         }
-        .btn-call:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .btn-mail {
+            background: #f5f5f7; color: var(--text-main) !important; text-decoration: none; padding: 12px 28px; border-radius: 50px;
+            font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
+            border: 1px solid #e1e1e1; cursor: pointer;
+        }
+        .btn-call:hover, .btn-mail:hover { transform: scale(1.05); filter: brightness(1.05); }
         .floating-call { position: fixed; bottom: 30px; right: 20px; z-index: 10002; display: none; }
 
         .hamburger { display: none; background: transparent; border: none; width: 44px; height: 44px; z-index: 10001; cursor: pointer; padding: 0; }
@@ -105,10 +109,11 @@
         .other-troubles h3 { font-size: 1.6rem; margin-bottom: 8px; color: #000; font-weight: 900; }
         .other-troubles .price { font-size: 2.5rem; color: #000; font-weight: 900; }
 
+        /* About Section Optimize */
         .about { background: var(--bg-light); border-radius: 40px; margin: 0 24px; }
-        .about-flex { display: flex; align-items: stretch; gap: 60px; }
-        .about-image { flex: 1; border-radius: 24px; overflow: hidden; }
-        .about-image img { width: 100%; height: 100%; object-fit: cover; }
+        .about-flex { display: flex; align-items: center; gap: 60px; }
+        .about-image { flex: 1; border-radius: 24px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .about-image img { width: 100%; height: auto; max-width: 450px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .about-content { flex: 1.2; padding: 60px 0; }
         
         .info-list { margin-top: 24px; list-style: none; }
@@ -157,7 +162,8 @@
             .other-troubles-container { grid-column: span 1; }
             .about { margin: 0 10px; border-radius: 24px; }
             .about-flex { flex-direction: column-reverse; padding: 40px 20px; }
-            .about-image { height: 250px; }
+            .about-image { height: auto; padding: 0 10px; }
+            .about-image img { max-width: 100%; height: auto; }
             .modal-content { padding: 40px 20px; border-radius: 24px; }
             
             .nav-menu.active {
@@ -165,6 +171,14 @@
                 width: 100% !important; height: 100vh !important; background: #ffffff !important;
                 flex-direction: column !important; justify-content: center !important; align-items: center !important;
                 z-index: 10001 !important;
+            }
+            .nav-menu.active a {
+                padding: 15px 0 !important; font-size: 1.25rem !important; font-weight: 700 !important;
+                width: 85% !important; border-bottom: 1px solid #f5f5f7 !important; color: #000 !important;
+                text-align: center;
+            }
+            .nav-menu.active .btn-mail-nav {
+                margin-top: 20px; background: var(--primary); color: #fff !important; width: 85%; padding: 15px; border-radius: 50px;
             }
         }
     </style>
@@ -178,11 +192,14 @@
                 <a href="#hero">ホーム</a>
                 <a href="#services">サービス</a>
                 <a href="#about">会社情報</a>
-                <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> お電話で相談（緊急直通OK）</a>
+                <a href="#" class="open-modal-btn btn-mail-nav-pc" style="font-weight: 600; color: var(--primary);">メール問合せ</a>
+                <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 090-3203-2724（緊急直通OK）</a>
             </nav>
             <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
         </div>
     </header>
+
+    <!-- Mobile Nav will add Email link via JS logic or explicit here -->
 
     <div class="floating-call">
         <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 緊急直通OK</a>
@@ -197,7 +214,7 @@
                     <p class="hero-desc">蛇口交換から庭の草むしり、家具の組み立てまで。<br>誠実・丁寧に対応可能な、あなたの町の便利屋です。</p>
                     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                         <a href="tel:09032032724" class="btn-call" style="padding: 18px 36px; font-size: 1.1rem;"><i class="fas fa-phone"></i> 今すぐお電話で相談</a>
-                        <button class="open-modal-btn" style="padding: 18px 36px; background: #eee; color: #1d1d1f; border-radius: 50px; font-weight: 700; border: none; cursor: pointer;">メールで問い合わせ</button>
+                        <button class="open-modal-btn btn-mail" style="padding: 18px 36px; background: #eee; color: #1d1d1f; border-radius: 50px; font-weight: 700; border: none; cursor: pointer;">メールで問い合わせ</button>
                     </div>
                 </div>
             </div>
@@ -258,7 +275,7 @@
 
         <section id="about" class="about">
             <div class="container about-flex">
-                <div class="about-image"><img src="assets/images/maintenance-service-murakami_2.jpg" alt="サービス風景"></div>
+                <div class="about-image"><img src="assets/images/image_4.png" alt="村上様ポートレート"></div>
                 <div class="about-content">
                     <span class="section-label" style="text-align: left;">PROFILE</span>
                     <h2>メンテナンスサービス 村上</h2>
@@ -273,7 +290,10 @@
                             </div>
                         </li>
                     </ul>
-                    <a href="tel:09032032724" class="btn-call" style="margin-top: 24px;"><i class="fas fa-phone"></i> お電話で無料相談</a>
+                    <div style="display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap;">
+                        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> お電話で相談</a>
+                        <button class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールで問合せ</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -320,6 +340,20 @@
                 hamburger.classList.toggle('active');
                 navMenu.classList.toggle('active');
                 document.body.classList.toggle('modal-open');
+                
+                // Add Email link to mobile menu if not exists
+                if (window.innerWidth <= 768 && !document.querySelector('.btn-mail-nav')) {
+                    const mailLink = document.createElement('a');
+                    mailLink.href = '#';
+                    mailLink.innerText = 'メールで問合せ';
+                    mailLink.className = 'btn-mail-nav';
+                    mailLink.onclick = (e) => {
+                        e.preventDefault();
+                        hamburger.click(); // Close menu
+                        openModal();
+                    }
+                    navMenu.appendChild(mailLink);
+                }
             };
 
             // Modal Logic
@@ -332,7 +366,10 @@
                 document.body.classList.remove('modal-open');
             };
 
-            openBtns.forEach(btn => btn.onclick = openModal);
+            openBtns.forEach(btn => btn.onclick = (e) => {
+                e.preventDefault();
+                openModal();
+            });
             closeBtn.onclick = closeModal;
             successClose.onclick = closeModal;
             overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
