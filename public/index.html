@@ -36,7 +36,6 @@
             -webkit-text-size-adjust: 100%;
         }
 
-        /* モーダル表示中は常駐ボタンを非表示 */
         body.modal-open .floating-call { display: none !important; }
         body.modal-open { overflow: hidden !important; }
 
@@ -55,10 +54,10 @@
         .nav-menu { display: flex; gap: 24px; align-items: center; }
         .nav-menu a { text-decoration: none; color: var(--text-main); font-size: 0.95rem; font-weight: 500; }
         
-        /* ボタンデザインの統一 */
+        /* ボタンデザインの完全統一 */
         .btn-call, .btn-mail, .btn-mail-outline {
-            height: 54px; padding: 0 32px; border-radius: 50px;
-            font-size: 1rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 10px; 
+            height: 56px; width: 260px; padding: 0 20px; border-radius: 50px;
+            font-size: 1rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 12px; 
             transition: 0.3s; text-decoration: none; cursor: pointer; border: none;
         }
         .btn-call {
@@ -66,10 +65,11 @@
             box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
         }
         .btn-mail {
-            background: #eee; color: #1d1d1f !important;
+            background: var(--primary); color: #fff !important;
+            box-shadow: 0 4px 15px rgba(0, 51, 153, 0.3);
         }
         .btn-mail-outline {
-            background: transparent; color: var(--primary) !important; border: 1.5px solid var(--primary);
+            background: transparent; color: var(--primary) !important; border: 2px solid var(--primary);
         }
         .btn-call:hover, .btn-mail:hover, .btn-mail-outline:hover { transform: scale(1.03); filter: brightness(1.05); }
 
@@ -159,26 +159,26 @@
             .about-flex { flex-direction: column-reverse; padding: 40px 20px; }
             .about-image { height: 300px; }
             
+            /* ハンバーガーメニューの切れ対策 */
             .nav-menu.active {
                 display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important;
                 width: 100% !important; height: 100vh !important; background: #ffffff !important;
-                flex-direction: column !important; justify-content: center !important; align-items: center !important;
-                z-index: 10001 !important;
+                flex-direction: column !important; justify-content: flex-start !important; align-items: center !important;
+                z-index: 10001 !important; padding-top: 100px !important; gap: 15px !important;
+                overflow-y: auto;
             }
             .nav-menu.active a {
-                padding: 15px 0 !important; font-size: 1.3rem !important; font-weight: 700 !important;
+                padding: 12px 0 !important; font-size: 1.2rem !important; font-weight: 700 !important;
                 width: 85% !important; border-bottom: 1px solid #f5f5f7 !important; color: #000 !important;
                 text-align: center;
             }
-            .nav-menu.active .btn-call {
-                margin: 20px 0 !important; width: 85% !important; height: 60px !important;
-                display: flex !important; justify-content: center !important;
+            .nav-menu.active .btn-call, .nav-menu.active .btn-mail {
+                margin: 5px 0 !important; width: 85% !important; height: 56px !important;
+                display: inline-flex !important;
             }
-            .btn-mail-nav {
-                display: flex !important; width: 85% !important; height: 60px !important; text-align: center !important;
-                font-weight: 700 !important; color: var(--primary) !important; border: 1.5px solid var(--primary) !important;
-                border-radius: 50px !important; margin-top: 10px !important; text-decoration: none !important;
-                align-items: center !important; justify-content: center !important;
+            .nav-menu.active .btn-mail-nav-pc {
+                background: var(--primary); color: #fff !important; border-radius: 50px;
+                border-bottom: none !important;
             }
         }
     </style>
@@ -192,7 +192,7 @@
                 <a href="#hero">ホーム</a>
                 <a href="#services">サービス</a>
                 <a href="#about">会社情報</a>
-                <a href="#" class="open-modal-btn btn-mail-nav-pc" style="font-weight: 600; color: var(--primary);">メールでお問い合わせ</a>
+                <a href="#" class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールでお問い合わせ</a>
                 <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
             </nav>
             <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
@@ -211,8 +211,8 @@
                     <h1 class="hero-title">住まいの「困った」を<br>即解決する<br>プロフェッショナル</h1>
                     <p class="hero-desc">蛇口交換から庭の草むしり<br>家具の組み立てなど<br>誠実・丁寧に対応可能な<br>あなたの町の便利屋です。</p>
                     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <a href="tel:09032032724" class="btn-call" style="height: 60px; padding: 0 40px; font-size: 1.1rem;"><i class="fas fa-phone"></i> 電話で相談</a>
-                        <button class="open-modal-btn btn-mail" style="height: 60px; padding: 0 40px; font-size: 1.1rem;">メールでお問い合わせ</button>
+                        <a href="tel:09032032724" class="btn-call" style="height: 60px; width: 280px; font-size: 1.1rem;"><i class="fas fa-phone"></i> 電話で相談</a>
+                        <button class="open-modal-btn btn-mail" style="height: 60px; width: 280px; font-size: 1.1rem;"><i class="fas fa-envelope"></i> メールでお問い合わせ</button>
                     </div>
                 </div>
             </div>
@@ -302,8 +302,8 @@
                         </li>
                     </ul>
                     <div style="display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap;">
-                        <a href="tel:09032032724" class="btn-call">電話で相談</a>
-                        <button class="open-modal-btn btn-mail-outline">メールでお問い合わせ</button>
+                        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
+                        <button class="open-modal-btn btn-mail-outline"><i class="fas fa-envelope"></i> メールでお問い合わせ</button>
                     </div>
                 </div>
             </div>
@@ -319,7 +319,7 @@
                 <div class="form-group"><input type="text" name="name" placeholder="お名前（必須）" required></div>
                 <div class="form-group"><input type="email" name="email" placeholder="メールアドレス（必須）" required></div>
                 <div class="form-group"><textarea name="message" rows="5" placeholder="ご相談内容をお書きください。" required></textarea></div>
-                <button type="submit" id="submit-btn" class="submit-btn">この内容で送信する</button>
+                <button type="submit" id="submit-btn" class="submit-btn"><i class="fas fa-paper-plane"></i> この内容で送信する</button>
             </form>
             <div id="success-msg" style="display:none;">
                 <i class="fas fa-check-circle" style="font-size: 4rem; color: #25d366; margin-bottom: 20px;"></i>
@@ -352,15 +352,6 @@
                 hamburger.classList.toggle('active');
                 navMenu.classList.toggle('active');
                 document.body.classList.toggle('modal-open');
-
-                if (window.innerWidth <= 768 && !document.querySelector('.btn-mail-nav')) {
-                    const mailLink = document.createElement('a');
-                    mailLink.href = '#';
-                    mailLink.innerText = 'メールでお問い合わせ';
-                    mailLink.className = 'btn-mail-nav';
-                    mailLink.onclick = (e) => { e.preventDefault(); hamburger.click(); openModal(); }
-                    navMenu.appendChild(mailLink);
-                }
             };
 
             openBtns.forEach(btn => btn.onclick = (e) => { e.preventDefault(); openModal(); });
@@ -368,7 +359,7 @@
             successClose.onclick = closeModal;
             overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
 
-            const navLinks = document.querySelectorAll('.nav-menu a:not(.btn-mail-nav)');
+            const navLinks = document.querySelectorAll('.nav-menu a:not(.btn-call):not(.btn-mail)');
             navLinks.forEach(link => {
                 link.addEventListener('click', () => {
                     if(navMenu.classList.contains('active')) {
