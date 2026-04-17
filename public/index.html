@@ -23,6 +23,7 @@
             --bg-white: #ffffff;
             --bg-light: #f5f5f7;
             --header-blur: saturate(180%) blur(20px);
+            --call-green: #25d366;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -49,7 +50,10 @@
             height: 70px; display: flex; align-items: center;
         }
         .header-inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+        
+        .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
         .logo img { height: 44px; display: block; width: auto; }
+        .logo span { font-size: 1.4rem; font-weight: 900; color: var(--call-green); letter-spacing: -0.01em; }
 
         .nav-menu { display: flex; gap: 24px; align-items: center; }
         .nav-menu a { text-decoration: none; color: var(--text-main); font-size: 0.95rem; font-weight: 500; }
@@ -61,7 +65,7 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); font-family: inherit;
             color: #ffffff !important;
         }
-        .btn-call { background: #25d366; }
+        .btn-call { background: var(--call-green); }
         .btn-mail, .submit-btn { background: var(--primary); }
         .btn-call:hover, .btn-mail:hover, .submit-btn:hover { transform: scale(1.03); filter: brightness(1.05); }
 
@@ -75,7 +79,7 @@
             font-size: 1.5rem; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.25);
             transition: 0.3s; cursor: pointer; border: none; text-decoration: none;
         }
-        .floating-btn.call { background: #25d366; }
+        .floating-btn.call { background: var(--call-green); }
         .floating-btn.mail { background: var(--primary); }
         .floating-btn:hover { transform: scale(1.1); filter: brightness(1.1); }
 
@@ -116,7 +120,6 @@
         .other-troubles h3 { font-size: 1.6rem; margin-bottom: 8px; color: #000; font-weight: 900; line-height: 1.4; }
         .other-troubles .price { font-size: 2.5rem; color: #000; font-weight: 900; }
 
-        /* ABOUTセクションの隙間を最適化 */
         .about { background: var(--bg-light); border-radius: 40px; margin: 0 24px; padding: 40px 0; }
         .about-flex { display: flex; align-items: stretch; gap: 60px; }
         .about-image { flex: 1; border-radius: 24px; overflow: hidden; max-height: 450px; }
@@ -139,6 +142,7 @@
         @media (max-width: 768px) {
             header { height: 60px; }
             .logo img { height: 36px; }
+            .logo span { font-size: 1.15rem; }
             section { padding: 4rem 20px !important; }
             .floating-contact-wrap { display: flex; }
             .hero-title { font-size: 1.5rem !important; }
@@ -166,10 +170,12 @@
                 display: inline-flex !important; border-bottom: none !important; color: #fff !important;
             }
             .menu-logo-wrap {
-                display: block; margin-top: auto; padding: 30px 0; width: 100%; text-align: center;
+                display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+                margin-top: auto; padding: 30px 0; width: 100%; text-align: center;
                 background: #fbfbfb; border-top: 1px solid #eee;
             }
-            .menu-logo-wrap img { height: 36px; opacity: 0.8; }
+            .menu-logo-wrap img { height: 36px; opacity: 0.9; }
+            .menu-logo-wrap span { font-size: 1.1rem; font-weight: 900; color: var(--call-green); }
         }
     </style>
 </head>
@@ -177,14 +183,20 @@
 
     <header>
         <div class="container header-inner">
-            <div class="logo"><img src="assets/images/maintenance-service-murakami_rogo.png" alt="メンテナンスサービス 村上"></div>
+            <a href="#hero" class="logo">
+                <img src="assets/images/maintenance-service-murakami_rogo.png" alt="メンテナンスサービス 村上 アイコン">
+                <span>メンテナンスサービス村上</span>
+            </a>
             <nav class="nav-menu" id="nav-menu">
                 <a href="#hero">ホーム</a>
                 <a href="#services">サービス</a>
                 <a href="#about">会社情報</a>
                 <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
                 <a href="#" class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールでお問い合わせ</a>
-                <div class="menu-logo-wrap"><img src="assets/images/maintenance-service-murakami_rogo.png" alt="村上"></div>
+                <div class="menu-logo-wrap">
+                    <img src="assets/images/maintenance-service-murakami_rogo.png" alt="村上 アイコン">
+                    <span>メンテナンスサービス村上</span>
+                </div>
             </nav>
             <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
         </div>
