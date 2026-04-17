@@ -36,6 +36,8 @@
             -webkit-text-size-adjust: 100%;
         }
 
+        /* モーダル表示中は常駐ボタンを非表示 */
+        body.modal-open .floating-call { display: none !important; }
         body.modal-open { overflow: hidden !important; }
 
         .container { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
@@ -53,16 +55,23 @@
         .nav-menu { display: flex; gap: 24px; align-items: center; }
         .nav-menu a { text-decoration: none; color: var(--text-main); font-size: 0.95rem; font-weight: 500; }
         
+        /* ボタンデザインの統一 */
+        .btn-call, .btn-mail, .btn-mail-outline {
+            height: 54px; padding: 0 32px; border-radius: 50px;
+            font-size: 1rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 10px; 
+            transition: 0.3s; text-decoration: none; cursor: pointer; border: none;
+        }
         .btn-call {
-            background: #25d366; color: #fff !important; text-decoration: none; padding: 12px 24px; border-radius: 50px;
-            font-weight: 700; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); border: none; cursor: pointer;
+            background: #25d366; color: #fff !important;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+        .btn-mail {
+            background: #eee; color: #1d1d1f !important;
         }
         .btn-mail-outline {
-            background: transparent; color: var(--primary) !important; text-decoration: none; padding: 10px 20px; border-radius: 50px;
-            font-weight: 600; font-size: 0.9rem; border: 1.5px solid var(--primary); cursor: pointer;
+            background: transparent; color: var(--primary) !important; border: 1.5px solid var(--primary);
         }
-        .btn-call:hover { transform: scale(1.03); filter: brightness(1.05); }
+        .btn-call:hover, .btn-mail:hover, .btn-mail-outline:hover { transform: scale(1.03); filter: brightness(1.05); }
 
         .floating-call { position: fixed; bottom: 30px; right: 20px; z-index: 10002; display: none; }
 
@@ -77,7 +86,7 @@
             background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('assets/images/maintenance-service-murakami_1.jpg');
             background-size: cover; background-position: center;
         }
-        .hero-tag { display: inline-block; background: var(--accent); color: #000; padding: 6px 14px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; margin-bottom: 24px; }
+        .hero-tag { display: inline-block; background: var(--accent); color: #000; padding: 6px 14px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; margin-bottom: 24px; line-height: 1.4; }
         .hero-title { font-size: 3.5rem; line-height: 1.2; font-weight: 900; margin-bottom: 32px; letter-spacing: -0.02em; }
         .hero-desc { font-size: 1.25rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.8; }
 
@@ -97,10 +106,9 @@
         .other-troubles {
             background: var(--accent); padding: 40px; text-align: center; border-radius: 24px;
         }
-        .other-troubles h3 { font-size: 1.6rem; margin-bottom: 8px; color: #000; font-weight: 900; }
+        .other-troubles h3 { font-size: 1.6rem; margin-bottom: 8px; color: #000; font-weight: 900; line-height: 1.4; }
         .other-troubles .price { font-size: 2.5rem; color: #000; font-weight: 900; }
 
-        /* About Section Revert */
         .about { background: var(--bg-light); border-radius: 40px; margin: 0 24px; }
         .about-flex { display: flex; align-items: stretch; gap: 60px; }
         .about-image { flex: 1; border-radius: 24px; overflow: hidden; }
@@ -123,6 +131,7 @@
             background: #fff; width: 95%; max-width: 600px; padding: 60px 40px; border-radius: 32px;
             position: relative; max-height: 90vh; overflow-y: auto; text-align: center;
         }
+        .modal-close { position: absolute; top: 20px; right: 20px; font-size: 2rem; cursor: pointer; color: #ccc; }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group input, .form-group textarea {
             width: 100%; padding: 18px; border: 1px solid #e1e1e1; border-radius: 12px; font-size: 1rem;
@@ -142,7 +151,7 @@
             header { height: 60px; }
             section { padding: 4.5rem 20px !important; }
             .floating-call { display: block; }
-            .hero-title { font-size: 1.7rem !important; }
+            .hero-title { font-size: 1.5rem !important; }
             .hero-desc { font-size: 1rem !important; }
             .services-grid { grid-template-columns: 1fr; }
             .other-troubles-container { grid-column: span 1; }
@@ -162,13 +171,14 @@
                 text-align: center;
             }
             .nav-menu.active .btn-call {
-                margin: 20px 0 !important; width: 85% !important; padding: 18px !important; font-size: 1.1rem !important;
+                margin: 20px 0 !important; width: 85% !important; height: 60px !important;
                 display: flex !important; justify-content: center !important;
             }
             .btn-mail-nav {
-                display: block !important; width: 85% !important; padding: 15px !important; text-align: center !important;
+                display: flex !important; width: 85% !important; height: 60px !important; text-align: center !important;
                 font-weight: 700 !important; color: var(--primary) !important; border: 1.5px solid var(--primary) !important;
                 border-radius: 50px !important; margin-top: 10px !important; text-decoration: none !important;
+                align-items: center !important; justify-content: center !important;
             }
         }
     </style>
@@ -182,27 +192,27 @@
                 <a href="#hero">ホーム</a>
                 <a href="#services">サービス</a>
                 <a href="#about">会社情報</a>
-                <a href="#" class="open-modal-btn btn-mail-nav-pc" style="font-weight: 600; color: var(--primary);">メール問合せ</a>
-                <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 今すぐお電話で相談（無料）</a>
+                <a href="#" class="open-modal-btn btn-mail-nav-pc" style="font-weight: 600; color: var(--primary);">メールでお問い合わせ</a>
+                <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
             </nav>
             <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
         </div>
     </header>
 
     <div class="floating-call">
-        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 今すぐお電話で相談（無料）</a>
+        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
     </div>
 
     <main>
         <section id="hero" class="hero">
             <div class="container">
                 <div class="hero-content">
-                    <span class="hero-tag">埼玉県内・特に草加市近郊は迅速対応<br>（近隣の足立区や千葉県一部エリアもご相談ください）</span>
-                    <h1 class="hero-title">住まいの「困った」を即解決する、<br>プロフェッショナル。</h1>
-                    <p class="hero-desc">蛇口交換から庭の草むしり、家具の組み立てまで。<br>誠実・丁寧に対応可能な、あなたの町の便利屋です。</p>
+                    <span class="hero-tag">埼玉県・特に草加市近郊は迅速対応<br>（足立区や千葉県一部エリアも対応可）</span>
+                    <h1 class="hero-title">住まいの「困った」を<br>即解決する<br>プロフェッショナル</h1>
+                    <p class="hero-desc">蛇口交換から庭の草むしり<br>家具の組み立てなど<br>誠実・丁寧に対応可能な<br>あなたの町の便利屋です。</p>
                     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <a href="tel:09032032724" class="btn-call" style="padding: 18px 36px; font-size: 1.1rem;"><i class="fas fa-phone"></i> 今すぐお電話で相談（無料）</a>
-                        <button class="open-modal-btn" style="padding: 18px 36px; background: #eee; color: #1d1d1f; border-radius: 50px; font-weight: 700; border: none; cursor: pointer;">メールでお問い合わせ</button>
+                        <a href="tel:09032032724" class="btn-call" style="height: 60px; padding: 0 40px; font-size: 1.1rem;"><i class="fas fa-phone"></i> 電話で相談</a>
+                        <button class="open-modal-btn btn-mail" style="height: 60px; padding: 0 40px; font-size: 1.1rem;">メールでお問い合わせ</button>
                     </div>
                 </div>
             </div>
@@ -214,47 +224,65 @@
                 <h2 class="section-title">サービス一覧・料金目安</h2>
                 <div class="services-grid">
                     <div class="service-card">
-                        <i class="fas fa-faucet service-icon"></i>
+                        <i class="fas fa-faucet" style="font-size: 1.8rem; color: var(--primary); margin-bottom: 20px;"></i>
                         <h3>水トラブル</h3>
                         <div class="price">8,800円<span>〜</span></div>
-                        <ul><li>蛇口交換・パッキン交換</li><li>トイレ・排水の詰まり抜き</li></ul>
+                        <ul style="list-style: none; margin-top: 16px; border-top: 1px solid #f5f5f7; padding-top: 16px; font-size: 0.85rem;">
+                            <li>• 蛇口交換・パッキン交換</li>
+                            <li>• トイレ・排水の詰まり抜き</li>
+                        </ul>
                     </div>
                     <div class="service-card">
-                        <i class="fas fa-leaf service-icon"></i>
+                        <i class="fas fa-leaf" style="font-size: 1.8rem; color: var(--primary); margin-bottom: 20px;"></i>
                         <h3>お庭の剪定・伐採</h3>
                         <div class="price">3,300円<span>〜</span></div>
-                        <ul><li>草むしり・除草・防草対策</li><li>枝落とし・剪定・伐採</li></ul>
+                        <ul style="list-style: none; margin-top: 16px; border-top: 1px solid #f5f5f7; padding-top: 16px; font-size: 0.85rem;">
+                            <li>• 草むしり・除草・防草対策</li>
+                            <li>• 枝落とし・剪定・伐採</li>
+                        </ul>
                     </div>
                     <div class="service-card">
-                        <i class="fas fa-hammer service-icon"></i>
+                        <i class="fas fa-hammer" style="font-size: 1.8rem; color: var(--primary); margin-bottom: 20px;"></i>
                         <h3>住まいのメンテナンス</h3>
                         <div class="price">5,500円<span>〜</span></div>
-                        <ul><li>家具の組み立て・修理</li><li>網戸・建具の調整・張替</li></ul>
+                        <ul style="list-style: none; margin-top: 16px; border-top: 1px solid #f5f5f7; padding-top: 16px; font-size: 0.85rem;">
+                            <li>• 家具の組み立て・修理</li>
+                            <li>• 網戸・建具の調整・張替</li>
+                        </ul>
                     </div>
                     <div class="service-card">
-                        <i class="fas fa-broom service-icon"></i>
+                        <i class="fas fa-broom" style="font-size: 1.8rem; color: var(--primary); margin-bottom: 20px;"></i>
                         <h3>清掃（清掃代行）</h3>
                         <div class="price">6,600円<span>〜</span></div>
-                        <ul><li>換気扇・キッチン清掃</li><li>整理・お片付け代行</li></ul>
+                        <ul style="list-style: none; margin-top: 16px; border-top: 1px solid #f5f5f7; padding-top: 16px; font-size: 0.85rem;">
+                            <li>• 換気扇・キッチン清掃</li>
+                            <li>• 整理・お片付け代行</li>
+                        </ul>
                     </div>
                     <div class="service-card">
-                        <i class="fas fa-bolt service-icon"></i>
+                        <i class="fas fa-bolt" style="font-size: 1.8rem; color: var(--primary); margin-bottom: 20px;"></i>
                         <h3>電気工事</h3>
                         <div class="price">5,500円<span>〜</span></div>
-                        <ul><li>電球交換・照明取付</li><li>コンセント増設・交換</li></ul>
+                        <ul style="list-style: none; margin-top: 16px; border-top: 1px solid #f5f5f7; padding-top: 16px; font-size: 0.85rem;">
+                            <li>• 電球交換・照明取付</li>
+                            <li>• コンセント増設・交換</li>
+                        </ul>
                     </div>
                     <div class="service-card">
-                        <i class="fas fa-house-user service-icon"></i>
+                        <i class="fas fa-house-user" style="font-size: 1.8rem; color: var(--primary); margin-bottom: 20px;"></i>
                         <h3>外構工事</h3>
                         <div class="price">27,500円<span>〜</span></div>
-                        <ul><li>フェンス・門扉の設置</li><li>駐車場・犬走りの舗装</li></ul>
+                        <ul style="list-style: none; margin-top: 16px; border-top: 1px solid #f5f5f7; padding-top: 16px; font-size: 0.85rem;">
+                            <li>• フェンス・門扉の設置</li>
+                            <li>• 駐車場・犬走りの舗装</li>
+                        </ul>
                     </div>
                     <div class="other-troubles-container">
                         <div class="other-troubles">
                             <span style="font-size: 0.8rem; font-weight: 700;">ANYTHING ELSE</span>
-                            <h3>★ その他お困りごと相談</h3>
+                            <h3>その他<br>お困りごと相談</h3>
                             <div class="price">1時間 3,300円<span>（税込）</span></div>
-                            <p>「こんなこと頼めるかな？」というお悩み、お気軽に！</p>
+                            <p>「こんなこと頼めるかな？」<br>というお悩み、お気軽に！</p>
                         </div>
                     </div>
                 </div>
@@ -266,16 +294,16 @@
                 <div class="about-image"><img src="assets/images/maintenance-service-murakami_2.jpg" alt="店舗外観・風景"></div>
                 <div class="about-content">
                     <span class="section-label" style="text-align: left;">PROFILE</span>
-                    <h2>メンテナンスサービス 村上</h2>
-                    <p>地域密着。顔の見える安心感と柔軟な対応でお客様の暮らしを守ります。相談・見積もりは無料です。</p>
+                    <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 20px;">メンテナンスサービス<br>村上</h2>
+                    <p style="margin-bottom: 24px;">地域密着。顔の見える安心感と柔軟な対応でお客様の暮らしを守ります。<br>相談・見積もりは無料です。</p>
                     <ul class="info-list">
                         <li><i class="fas fa-map-marker-alt"></i>
-                            <div><strong>所在地</strong>〒340-0006<br>埼玉県草加市八幡町570-22</div>
+                            <div><strong>所在地</strong>〒340-0006<br>埼玉県草加市八幡町510-22</div>
                         </li>
                     </ul>
-                    <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-                        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 今すぐお電話で相談（無料）</a>
-                        <button class="open-modal-btn btn-mail-outline"><i class="fas fa-envelope"></i> メールでお問い合わせ</button>
+                    <div style="display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap;">
+                        <a href="tel:09032032724" class="btn-call">電話で相談</a>
+                        <button class="open-modal-btn btn-mail-outline">メールでお問い合わせ</button>
                     </div>
                 </div>
             </div>
@@ -284,7 +312,7 @@
 
     <div class="modal-overlay" id="contact-modal">
         <div class="modal-content">
-            <span class="modal-close" id="modal-close" style="position:absolute; top:20px; right:20px; font-size:2rem; cursor:pointer;">&times;</span>
+            <span class="modal-close" id="modal-close">&times;</span>
             <span class="section-label" style="color: var(--primary);">CONTACT FORM</span>
             <h2 style="margin-bottom: 32px;">無料お見積り・ご相談</h2>
             <form id="murakami-form">
@@ -340,7 +368,6 @@
             successClose.onclick = closeModal;
             overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
 
-            // Hamburger links closure
             const navLinks = document.querySelectorAll('.nav-menu a:not(.btn-mail-nav)');
             navLinks.forEach(link => {
                 link.addEventListener('click', () => {
