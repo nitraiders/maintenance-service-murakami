@@ -8,10 +8,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>便利屋 メンテナンスサービス 村上 | 埼玉県草加市の住まい・お庭の修理</title>
-    <meta name="description" content="埼玉県草加市を中心に活動する便利屋。蛇口交換、草むしり、家具の組み立てなど、暮らしの『困った』を即日解決。誠実・丁寧な作業を適正価格で提供します。">
+    <meta name="description" content="埼玉県草加市を中心に活動する便利屋。誠実・丁寧な作業を適正価格で提供します。">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -51,20 +50,20 @@
         .header-inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
         .logo { font-size: 1.1rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em; }
 
-        .nav-menu { display: flex; gap: 32px; align-items: center; }
+        .nav-menu { display: flex; gap: 24px; align-items: center; }
         .nav-menu a { text-decoration: none; color: var(--text-main); font-size: 0.95rem; font-weight: 500; }
         
         .btn-call {
-            background: #25d366; color: #fff !important; text-decoration: none; padding: 12px 28px; border-radius: 50px;
-            font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
+            background: #25d366; color: #fff !important; text-decoration: none; padding: 12px 24px; border-radius: 50px;
+            font-weight: 700; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
             box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); border: none; cursor: pointer;
         }
-        .btn-mail {
-            background: #f5f5f7; color: var(--text-main) !important; text-decoration: none; padding: 12px 28px; border-radius: 50px;
-            font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s;
-            border: 1px solid #e1e1e1; cursor: pointer;
+        .btn-mail-outline {
+            background: transparent; color: var(--primary) !important; text-decoration: none; padding: 10px 20px; border-radius: 50px;
+            font-weight: 600; font-size: 0.9rem; border: 1.5px solid var(--primary); cursor: pointer;
         }
-        .btn-call:hover, .btn-mail:hover { transform: scale(1.05); filter: brightness(1.05); }
+        .btn-call:hover { transform: scale(1.03); filter: brightness(1.05); }
+
         .floating-call { position: fixed; bottom: 30px; right: 20px; z-index: 10002; display: none; }
 
         .hamburger { display: none; background: transparent; border: none; width: 44px; height: 44px; z-index: 10001; cursor: pointer; padding: 0; }
@@ -78,7 +77,7 @@
             background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('assets/images/maintenance-service-murakami_1.jpg');
             background-size: cover; background-position: center;
         }
-        .hero-tag { display: inline-block; background: var(--accent); color: #000; padding: 6px 14px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; margin-bottom: 24px; line-height: 1.4; }
+        .hero-tag { display: inline-block; background: var(--accent); color: #000; padding: 6px 14px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; margin-bottom: 24px; }
         .hero-title { font-size: 3.5rem; line-height: 1.2; font-weight: 900; margin-bottom: 32px; letter-spacing: -0.02em; }
         .hero-desc { font-size: 1.25rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.8; }
 
@@ -91,37 +90,28 @@
             background: #fff; padding: 40px 24px; border-radius: 20px; border: 1px solid #e1e1e1;
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;
         }
-        .service-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: var(--primary); }
-        .service-icon { font-size: 1.8rem; color: var(--primary); margin-bottom: 20px; }
         .service-card h3 { font-size: 1.2rem; margin-bottom: 8px; font-weight: 700; }
         .service-card .price { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 12px; }
-        .service-card .price span { font-size: 0.8rem; font-weight: 400; color: var(--text-sub); }
-        .service-card p { color: var(--text-sub); font-size: 0.85rem; line-height: 1.6; min-height: 3em; }
-        .service-card ul { list-style: none; margin-top: 16px; border-top: 1px solid #f5f5f7; padding-top: 16px; }
-        .service-card li { font-size: 0.85rem; margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px; color: var(--text-main); }
-        .service-card li::before { content: "•"; color: var(--primary); font-weight: bold; }
 
         .other-troubles-container { grid-column: span 3; margin-top: 16px; }
         .other-troubles {
             background: var(--accent); padding: 40px; text-align: center; border-radius: 24px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .other-troubles h3 { font-size: 1.6rem; margin-bottom: 8px; color: #000; font-weight: 900; }
         .other-troubles .price { font-size: 2.5rem; color: #000; font-weight: 900; }
 
-        /* About Section Optimize */
+        /* About Section Revert */
         .about { background: var(--bg-light); border-radius: 40px; margin: 0 24px; }
-        .about-flex { display: flex; align-items: center; gap: 60px; }
-        .about-image { flex: 1; border-radius: 24px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .about-image img { width: 100%; height: auto; max-width: 450px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .about-flex { display: flex; align-items: stretch; gap: 60px; }
+        .about-image { flex: 1; border-radius: 24px; overflow: hidden; }
+        .about-image img { width: 100%; height: 100%; object-fit: cover; }
         .about-content { flex: 1.2; padding: 60px 0; }
         
         .info-list { margin-top: 24px; list-style: none; }
         .info-list li { margin-bottom: 20px; display: flex; gap: 16px; align-items: flex-start; text-align: left; }
         .info-list i { color: var(--primary); font-size: 1.2rem; margin-top: 4px; }
-        .info-list strong { display: block; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 2px; }
 
-        /* Modal Contact */
+        /* Modal */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
@@ -133,9 +123,6 @@
             background: #fff; width: 95%; max-width: 600px; padding: 60px 40px; border-radius: 32px;
             position: relative; max-height: 90vh; overflow-y: auto; text-align: center;
         }
-        .modal-close {
-            position: absolute; top: 24px; right: 24px; font-size: 1.8rem; cursor: pointer; color: #ccc;
-        }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group input, .form-group textarea {
             width: 100%; padding: 18px; border: 1px solid #e1e1e1; border-radius: 12px; font-size: 1rem;
@@ -143,7 +130,6 @@
         .submit-btn { 
             width: 100%; padding: 20px; background: var(--primary); color: #fff; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
         }
-        #success-msg { display: none; }
 
         @media (max-width: 1024px) {
             .nav-menu { display: none; }
@@ -162,9 +148,7 @@
             .other-troubles-container { grid-column: span 1; }
             .about { margin: 0 10px; border-radius: 24px; }
             .about-flex { flex-direction: column-reverse; padding: 40px 20px; }
-            .about-image { height: auto; padding: 0 10px; }
-            .about-image img { max-width: 100%; height: auto; }
-            .modal-content { padding: 40px 20px; border-radius: 24px; }
+            .about-image { height: 300px; }
             
             .nav-menu.active {
                 display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important;
@@ -173,12 +157,18 @@
                 z-index: 10001 !important;
             }
             .nav-menu.active a {
-                padding: 15px 0 !important; font-size: 1.25rem !important; font-weight: 700 !important;
+                padding: 15px 0 !important; font-size: 1.3rem !important; font-weight: 700 !important;
                 width: 85% !important; border-bottom: 1px solid #f5f5f7 !important; color: #000 !important;
                 text-align: center;
             }
-            .nav-menu.active .btn-mail-nav {
-                margin-top: 20px; background: var(--primary); color: #fff !important; width: 85%; padding: 15px; border-radius: 50px;
+            .nav-menu.active .btn-call {
+                margin: 20px 0 !important; width: 85% !important; padding: 18px !important; font-size: 1.1rem !important;
+                display: flex !important; justify-content: center !important;
+            }
+            .btn-mail-nav {
+                display: block !important; width: 85% !important; padding: 15px !important; text-align: center !important;
+                font-weight: 700 !important; color: var(--primary) !important; border: 1.5px solid var(--primary) !important;
+                border-radius: 50px !important; margin-top: 10px !important; text-decoration: none !important;
             }
         }
     </style>
@@ -193,16 +183,14 @@
                 <a href="#services">サービス</a>
                 <a href="#about">会社情報</a>
                 <a href="#" class="open-modal-btn btn-mail-nav-pc" style="font-weight: 600; color: var(--primary);">メール問合せ</a>
-                <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 090-3203-2724（緊急直通OK）</a>
+                <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 今すぐお電話で相談（無料）</a>
             </nav>
             <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
         </div>
     </header>
 
-    <!-- Mobile Nav will add Email link via JS logic or explicit here -->
-
     <div class="floating-call">
-        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 緊急直通OK</a>
+        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 今すぐお電話で相談（無料）</a>
     </div>
 
     <main>
@@ -213,8 +201,8 @@
                     <h1 class="hero-title">住まいの「困った」を即解決する、<br>プロフェッショナル。</h1>
                     <p class="hero-desc">蛇口交換から庭の草むしり、家具の組み立てまで。<br>誠実・丁寧に対応可能な、あなたの町の便利屋です。</p>
                     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <a href="tel:09032032724" class="btn-call" style="padding: 18px 36px; font-size: 1.1rem;"><i class="fas fa-phone"></i> 今すぐお電話で相談</a>
-                        <button class="open-modal-btn btn-mail" style="padding: 18px 36px; background: #eee; color: #1d1d1f; border-radius: 50px; font-weight: 700; border: none; cursor: pointer;">メールで問い合わせ</button>
+                        <a href="tel:09032032724" class="btn-call" style="padding: 18px 36px; font-size: 1.1rem;"><i class="fas fa-phone"></i> 今すぐお電話で相談（無料）</a>
+                        <button class="open-modal-btn" style="padding: 18px 36px; background: #eee; color: #1d1d1f; border-radius: 50px; font-weight: 700; border: none; cursor: pointer;">メールでお問い合わせ</button>
                     </div>
                 </div>
             </div>
@@ -275,7 +263,7 @@
 
         <section id="about" class="about">
             <div class="container about-flex">
-                <div class="about-image"><img src="assets/images/image_4.png" alt="村上様ポートレート"></div>
+                <div class="about-image"><img src="assets/images/maintenance-service-murakami_2.jpg" alt="店舗外観・風景"></div>
                 <div class="about-content">
                     <span class="section-label" style="text-align: left;">PROFILE</span>
                     <h2>メンテナンスサービス 村上</h2>
@@ -284,25 +272,19 @@
                         <li><i class="fas fa-map-marker-alt"></i>
                             <div><strong>所在地</strong>〒340-0006<br>埼玉県草加市八幡町570-22</div>
                         </li>
-                        <li><i class="fas fa-phone-alt"></i>
-                            <div><strong>お問い合わせ（緊急直通OK）</strong>
-                                <span style="font-size: 1.4rem; font-weight: 900; color: var(--primary);">090-3203-2724</span>
-                            </div>
-                        </li>
                     </ul>
-                    <div style="display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap;">
-                        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> お電話で相談</a>
-                        <button class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールで問合せ</button>
+                    <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+                        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 今すぐお電話で相談（無料）</a>
+                        <button class="open-modal-btn btn-mail-outline"><i class="fas fa-envelope"></i> メールでお問い合わせ</button>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Modal Form -->
     <div class="modal-overlay" id="contact-modal">
         <div class="modal-content">
-            <span class="modal-close" id="modal-close">&times;</span>
+            <span class="modal-close" id="modal-close" style="position:absolute; top:20px; right:20px; font-size:2rem; cursor:pointer;">&times;</span>
             <span class="section-label" style="color: var(--primary);">CONTACT FORM</span>
             <h2 style="margin-bottom: 32px;">無料お見積り・ご相談</h2>
             <form id="murakami-form">
@@ -311,11 +293,11 @@
                 <div class="form-group"><textarea name="message" rows="5" placeholder="ご相談内容をお書きください。" required></textarea></div>
                 <button type="submit" id="submit-btn" class="submit-btn">この内容で送信する</button>
             </form>
-            <div id="success-msg">
+            <div id="success-msg" style="display:none;">
                 <i class="fas fa-check-circle" style="font-size: 4rem; color: #25d366; margin-bottom: 20px;"></i>
                 <h3>送信が完了しました</h3>
                 <p>迅速に折り返しご連絡いたします。</p>
-                <button class="submit-btn" style="background: #eee; color: #000; margin-top: 24px;" id="success-close">閉じる</button>
+                <button class="submit-btn" style="background:#eee; color:#000; margin-top:24px;" id="success-close">閉じる</button>
             </div>
         </div>
     </div>
@@ -335,46 +317,41 @@
             const closeBtn = document.getElementById('modal-close');
             const successClose = document.getElementById('success-close');
             
-            // Menu Toggle
+            const openModal = () => { overlay.classList.add('active'); document.body.classList.add('modal-open'); };
+            const closeModal = () => { overlay.classList.remove('active'); document.body.classList.remove('modal-open'); };
+
             hamburger.onclick = () => {
                 hamburger.classList.toggle('active');
                 navMenu.classList.toggle('active');
                 document.body.classList.toggle('modal-open');
-                
-                // Add Email link to mobile menu if not exists
+
                 if (window.innerWidth <= 768 && !document.querySelector('.btn-mail-nav')) {
                     const mailLink = document.createElement('a');
                     mailLink.href = '#';
-                    mailLink.innerText = 'メールで問合せ';
+                    mailLink.innerText = 'メールでお問い合わせ';
                     mailLink.className = 'btn-mail-nav';
-                    mailLink.onclick = (e) => {
-                        e.preventDefault();
-                        hamburger.click(); // Close menu
-                        openModal();
-                    }
+                    mailLink.onclick = (e) => { e.preventDefault(); hamburger.click(); openModal(); }
                     navMenu.appendChild(mailLink);
                 }
             };
 
-            // Modal Logic
-            const openModal = () => {
-                overlay.classList.add('active');
-                document.body.classList.add('modal-open');
-            };
-            const closeModal = () => {
-                overlay.classList.remove('active');
-                document.body.classList.remove('modal-open');
-            };
-
-            openBtns.forEach(btn => btn.onclick = (e) => {
-                e.preventDefault();
-                openModal();
-            });
+            openBtns.forEach(btn => btn.onclick = (e) => { e.preventDefault(); openModal(); });
             closeBtn.onclick = closeModal;
             successClose.onclick = closeModal;
             overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
 
-            // Form Submit
+            // Hamburger links closure
+            const navLinks = document.querySelectorAll('.nav-menu a:not(.btn-mail-nav)');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if(navMenu.classList.contains('active')) {
+                        hamburger.classList.remove('active');
+                        navMenu.classList.remove('active');
+                        document.body.classList.remove('modal-open');
+                    }
+                });
+            });
+
             const form = document.getElementById('murakami-form');
             const submitBtn = document.getElementById('submit-btn');
             const successMsg = document.getElementById('success-msg');
@@ -383,16 +360,14 @@
                 e.preventDefault();
                 submitBtn.disabled = true;
                 submitBtn.innerText = '送信中...';
-
                 const GAS_URL = 'https://script.google.com/macros/s/AKfycby0n7PYVlmf5eeCFhLKBlb87WJkZ8jiecw1W-P-d396DfqWjsZG6Uelxz6zT4QnaJ14/exec';
                 const params = new URLSearchParams(new FormData(form));
-
                 try {
                     await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: params.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
                     form.style.display = 'none';
                     successMsg.style.display = 'block';
                 } catch (error) {
-                    alert('送信に失敗しました。お電話にてお問い合わせください。');
+                    alert('送信に失敗しました。お問い合わせは直接携帯（090-3203-2724）までお願いいたします。');
                     submitBtn.disabled = false;
                     submitBtn.innerText = 'この内容で送信する';
                 }
