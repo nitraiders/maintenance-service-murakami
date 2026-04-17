@@ -5,7 +5,7 @@
 function doPost(e) {
   // -------------------------------------------------------------
   // 【最重要】ここに通知を受け取りたいメールアドレスを記入してください
-  const TARGET_EMAIL = "peekabooyu1@gmail.com"; 
+  const TARGET_EMAIL = "murakamiyu1jp@gmail.com"; 
   // -------------------------------------------------------------
 
   try {
