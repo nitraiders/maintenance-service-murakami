@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+    <!-- Render → Cloudflare リダイレクト（Render上でのみ動作） -->
+    <script>
+      if (window.location.hostname.includes('onrender.com')) {
+        var meta = document.createElement('meta');
+        meta.httpEquiv = 'refresh';
+        meta.content = '5;url=https://maintenance-service-murakami.pages.dev';
+        document.head.appendChild(meta);
+
+        window.onload = function() {
+          document.body.innerHTML = '\
+            <div style="text-align:center; margin-top:100px; font-family:sans-serif; color:#333;">\
+              <h2>サイトを移転しました（爆速化対応）</h2>\
+              <p>5秒後に自動的に新しいURLへ移動します。</p>\
+              <p>移動しない場合は <a href="https://maintenance-service-murakami.pages.dev" style="color:#007bff; font-weight:bold;">こちら</a> をクリックしてください。</p>\
+              <p style="font-size:0.8rem; color:#999; margin-top:20px;">※ブックマークの変更をお願いします！</p>\
+            </div>\
+          ';
+        };
+      }
+    </script>
+
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
