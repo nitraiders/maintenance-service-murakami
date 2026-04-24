@@ -118,8 +118,8 @@
             background-size: cover; background-position: center;
         }
         .hero-tag { display: inline-block; background: var(--accent); color: #000; padding: 6px 14px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; margin-bottom: 24px; line-height: 1.4; }
-        .hero-title { font-size: 3.5rem; line-height: 1.2; font-weight: 900; margin-bottom: 32px; letter-spacing: -0.02em; }
-        .hero-desc { font-size: 1.25rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.8; }
+        .hero-title { font-size: 2rem; line-height: 1.2; font-weight: 900; margin-bottom: 32px; letter-spacing: -0.02em; }
+        .hero-desc { font-size: 1.2rem; color: var(--text-main); margin-bottom: 40px; line-height: 1.8; font-weight: 700; }
 
         section { padding: 80px 0; }
         .section-label { 
@@ -212,11 +212,18 @@
             }
             .menu-logo-wrap {
                 display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-                margin-top: auto; padding: 30px 0; width: 100%; text-align: center;
+                padding: 30px 0; width: 100%; text-align: center;
                 background: #fbfbfb; border-top: 1px solid #eee;
             }
             .menu-logo-wrap img { height: 36px; opacity: 0.9; }
             .menu-logo-wrap span { font-size: 1.1rem; font-weight: 900; color: var(--logo-green); }
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
     </style>
 </head>
@@ -253,9 +260,9 @@
             <div class="container">
                 <div class="hero-content">
                     <span class="hero-tag">埼玉県・特に草加市近郊は迅速対応<br>※足立区や千葉県一部エリアも対応可</span>
-                    <h1 class="hero-title">住まいの「困った」を<br>即解決する<br>プロフェッショナル</h1>
+                    <h1 class="hero-title">住まいの「困った」<br>即解決する<br>プロフェッショナル</h1>
                     <p class="hero-desc">蛇口交換から庭の草むしり<br>家具の組み立てなど<br>誠実・丁寧に対応可能な<br>あなたの町の便利屋です。</p>
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
                         <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
                         <button class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールでお問い合わせ</button>
                     </div>
@@ -340,13 +347,19 @@
                 <div class="about-content">
                     <span class="section-label" style="text-align: left;">PROFILE</span>
                     <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 20px; line-height: 1.3;">メンテナンス<br>サービス<br>村上</h2>
-                    <p style="margin-bottom: 24px;">地域密着。顔の見える安心感と柔軟な対応でお客様の暮らしを守ります。<br>相談・見積もりは無料です。</p>
+                    <p style="margin-bottom: 24px; font-size: 1.2rem; font-weight: 700; line-height: 1.8;">
+                        地域密着。<br>
+                        顔の見える安心感と<br>
+                        柔軟な対応で<br>
+                        お客様の暮らし守ります。<br>
+                        相談・見積もりは無料です。
+                    </p>
                     <ul class="info-list">
                         <li><i class="fas fa-map-marker-alt"></i>
                             <div><strong>所在地</strong>〒340-0006<br>埼玉県草加市八幡町510-22</div>
                         </li>
                     </ul>
-                    <div style="display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; justify-content: center;">
                         <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
                         <button class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールでお問い合わせ</button>
                     </div>
