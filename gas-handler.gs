@@ -5,32 +5,50 @@
 function doPost(e) {
   // -------------------------------------------------------------
   // 【最重要】ここに通知を受け取りたいメールアドレスを記入してください
-  const TARGET_EMAIL = "murakamiyu1jp@gmail.com"; 
+  const TARGET_EMAIL = "info@m-s-murakami.com"; 
   // -------------------------------------------------------------
 
   try {
-    // データの取得 (URL-encoded: URLSearchParams 形式に最適化)
-    let name, email, message;
+    let params;
     
+    // データの取得 (URL-encoded または JSON 形式)
     if (e.parameter && e.parameter.name) {
-      name = e.parameter.name;
-      email = e.parameter.email;
-      message = e.parameter.message;
+      params = e.parameter;
     } else {
-      const params = JSON.parse(e.postData.contents);
-      name = params.name;
-      email = params.email;
-      message = params.message;
+      params = JSON.parse(e.postData.contents);
     }
 
-    name = name || "不明";
-    email = email || "不明";
-    message = message || "内容なし";
     const timestamp = new Date();
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    // 1. スプレッドシートに保存 (スプレッドシートに紐付いたスクリプトとして実行)
+    // --- 新着情報・作業実績の投稿処理 ---
+    if (params.action === 'post_news') {
+      let sheet = ss.getSheetByName("新着情報");
+      // シートが存在しない場合は作成
+      if (!sheet) {
+        sheet = ss.insertSheet("新着情報");
+        sheet.appendRow(["日付", "カテゴリ", "内容", "画像URL", "登録日時"]);
+      }
+      
+      sheet.appendRow([
+        params.date,
+        params.category,
+        params.content,
+        params.image,
+        timestamp
+      ]);
+
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", type: "news" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // --- 通常の問い合わせフォーム処理 ---
+    const name = params.name || "不明";
+    const email = params.email || "不明";
+    const message = params.message || "内容なし";
+
+    // 1. 問い合わせシートに保存 (1枚目のシート)
     try {
-      const ss = SpreadsheetApp.getActiveSpreadsheet();
       const sheet = ss.getSheets()[0];
       sheet.appendRow([timestamp, name, email, message]);
     } catch (ssError) {
@@ -58,8 +76,7 @@ Maintenance Service Murakami Notification System
         GmailApp.sendEmail(TARGET_EMAIL, subject, body);
     }
 
-    // 【SKILL.md: 信頼のレスポンス】
-    return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", type: "inquiry" }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {

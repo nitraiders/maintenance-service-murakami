@@ -219,6 +219,98 @@
             .menu-logo-wrap img { height: 36px; opacity: 0.9; }
             .menu-logo-wrap span { font-size: 1.1rem; font-weight: 900; color: var(--logo-green); }
         }
+
+        /* 新着情報セクションのスタイル */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .news-card {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+        }
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+        .news-img-wrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: #eee;
+            position: relative;
+        }
+        .news-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .news-card:hover .news-img-wrapper img {
+            transform: scale(1.05);
+        }
+        .news-body {
+            padding: 24px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .news-date {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+        .news-category {
+            background: var(--bg-light);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .news-content {
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.6;
+            color: var(--text-main);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .news-loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .news-img-wrapper {
+                height: 180px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -260,6 +352,18 @@
                         <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
                         <button class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールでお問い合わせ</button>
                     </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 新着情報・作業実績セクション -->
+        <section id="news" style="background-color: #fafafa;">
+            <div class="container">
+                <span class="section-label">NEWS & WORKS</span>
+                <h2 class="section-title">新着情報・作業実績</h2>
+                <div id="news-container" class="news-grid">
+                    <div class="news-loading">情報を読み込み中...</div>
                 </div>
             </div>
         </section>
@@ -443,6 +547,68 @@
                     submitBtn.innerHTML = originalContent;
                 }
             };
+
+            // --- 新着情報取得処理 ---
+            const newsContainer = document.getElementById('news-container');
+            const NEWS_GAS_URL = 'https://script.google.com/macros/s/AKfycbwHTM0IBJZBHjaPh50R6_4T9rAZhcAnToWTTDr_oiLR292b7ZaReWWQ5FSjMTHkI0dr/exec';
+
+            /**
+             * GASから新着情報を取得して表示する関数
+             */
+            async function fetchNews() {
+                try {
+                    // GASからデータを取得
+                    const response = await fetch(NEWS_GAS_URL);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    
+                    const data = await response.json();
+                    
+                    // 読み込み中表示をクリア
+                    newsContainer.innerHTML = '';
+
+                    if (!data || data.length === 0) {
+                        newsContainer.innerHTML = '<div class="news-loading">現在、新しい情報はありません。</div>';
+                        return;
+                    }
+
+                    // 取得したデータをループしてカードを作成
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'news-card';
+                        
+                        // 画像URLがある場合のみ画像エリアを作成
+                        let imageHtml = '';
+                        if (item.image && item.image.trim() !== '') {
+                            imageHtml = `
+                                <div class="news-img-wrapper">
+                                    <img src="${item.image}" alt="${item.content}" loading="lazy">
+                                </div>
+                            `;
+                        }
+
+                        // カード内部のHTMLを組み立て
+                        card.innerHTML = `
+                            ${imageHtml}
+                            <div class="news-body">
+                                <div class="news-meta">
+                                    <span class="news-date">${item.date || ''}</span>
+                                    <span class="news-category">${item.category || 'お知らせ'}</span>
+                                </div>
+                                <p class="news-content">${item.content || ''}</p>
+                            </div>
+                        `;
+                        newsContainer.appendChild(card);
+                    });
+
+                } catch (error) {
+                    // エラー時の処理
+                    console.error('Fetch error:', error);
+                    newsContainer.innerHTML = '<div class="news-loading">情報の取得に失敗しました。時間をおいて再度お試しください。</div>';
+                }
+            }
+
+            // ページ読み込み時に実行
+            fetchNews();
         });
     </script>
 </body>
