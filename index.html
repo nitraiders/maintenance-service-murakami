@@ -225,7 +225,21 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 30px;
+        }
+        /* 新着情報セクションのスクロール対応 */
+        #news-section {
+            max-height: 650px; /* 3件程度表示される高さに調整 */
+            overflow-y: auto;  /* 縦方向にスクロールバーを表示 */
+            padding-right: 15px;
             margin-top: 40px;
+        }
+        /* スクロールバーのデザイン */
+        #news-section::-webkit-scrollbar {
+            width: 6px;
+        }
+        #news-section::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 10px;
         }
         .news-card {
             background: #fff;
@@ -362,8 +376,10 @@
             <div class="container">
                 <span class="section-label">NEWS & WORKS</span>
                 <h2 class="section-title">新着情報・作業実績</h2>
-                <div id="news-container" class="news-grid">
-                    <div class="news-loading">情報を読み込み中...</div>
+                <div id="news-section">
+                    <div id="news-container" class="news-grid">
+                        <div class="news-loading">情報を読み込み中...</div>
+                    </div>
                 </div>
             </div>
         </section>
