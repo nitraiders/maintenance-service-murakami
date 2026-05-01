@@ -595,12 +595,12 @@
                         const card = document.createElement('div');
                         card.className = 'news-card';
                         
-                        // 画像URLがある場合のみ画像エリアを作成
+                        // 画像URLが有効な場合のみ画像エリアを作成
                         let imageHtml = '';
-                        if (item.image && item.image.trim() !== '') {
+                        if (item.image && typeof item.image === 'string' && item.image.startsWith('http')) {
                             imageHtml = `
                                 <div class="news-img-wrapper">
-                                    <img src="${item.image}" alt="${item.content}" loading="lazy">
+                                    <img src="${item.image}" alt="${item.content}" loading="lazy" onerror="this.closest('.news-img-wrapper').style.display='none'">
                                 </div>
                             `;
                         }
