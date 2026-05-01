@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Deployment Timestamp: 2026-05-01T10:59:00 -->
+<!-- Deployment Timestamp: 2026-05-01T11:15:00 -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -73,12 +73,12 @@
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('form-section').style.display = 'block';
             document.getElementById('post-date').valueAsDate = new Date();
-            fetchList(); // 一覧を取得
+            loadPosts(); // 一覧を取得
         } else { alert('パスワードが違います'); }
     }
     document.getElementById('login-section').style.display = 'block';
 
-    async function fetchList() {
+    async function loadPosts() {
         const listDiv = document.getElementById('news-list');
         try {
             const response = await fetch(GAS_URL);
@@ -96,7 +96,7 @@
                         <div class="news-date-small">${item.date} [${item.category}]</div>
                         <div class="news-text-small">${item.content}</div>
                     </div>
-                    <button class="del-btn" onclick="deletePost('${item.date}', '${item.content.replace(/'/g, "\\'")}')">削除</button>
+                    <button class="del-btn" onclick="deletePost('${item.content.replace(/'/g, "\\'")}', '${item.date}')">削除</button>
                 `;
                 listDiv.appendChild(div);
             });
@@ -105,7 +105,7 @@
         }
     }
 
-    async function deletePost(date, content) {
+    async function deletePost(content, date) {
         if (!confirm('この投稿を削除しますか？')) return;
         
         // 日付形式を yyyy-MM-dd に統一
@@ -115,10 +115,10 @@
             await fetch(GAS_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: JSON.stringify({ action: 'delete_news', password: CORRECT_PASS, date: formattedDate, content: content })
+                body: JSON.stringify({ action: 'delete_news', password: CORRECT_PASS, content: content, date: formattedDate })
             });
-            alert('削除リクエストを送信しました');
-            fetchList(); // 再読み込み
+            alert('削除リクエストを送信しました（反映まで数秒かかります）');
+            loadPosts(); // 再読み込み
         } catch (e) {
             alert('エラーが発生しました');
         }
@@ -143,7 +143,7 @@
             document.getElementById('success-msg').style.display = 'block';
             document.getElementById('post-content').value = ''; fileInput.value = '';
             setTimeout(() => { document.getElementById('success-msg').style.display = 'none'; }, 5000);
-            fetchList(); // 一覧を更新
+            loadPosts(); // 一覧を更新
         } catch (e) { alert('エラーが発生しました'); } finally { btn.disabled = false; btn.innerText = '投稿する'; }
     }
 
