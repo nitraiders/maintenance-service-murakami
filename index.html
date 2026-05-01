@@ -228,9 +228,12 @@
         }
         /* 新着情報セクションのスクロール対応 */
         #news-section {
-            max-height: 650px; /* 3件程度表示される高さに調整 */
-            overflow-y: auto;  /* 縦方向にスクロールバーを表示 */
-            padding-right: 15px;
+            max-height: 480px; /* 3件程度で固定 */
+            overflow-y: auto;  /* はみ出たらスクロール */
+            border: 1px solid #eee;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
             margin-top: 40px;
         }
         /* スクロールバーのデザイン */
@@ -238,7 +241,7 @@
             width: 6px;
         }
         #news-section::-webkit-scrollbar-thumb {
-            background-color: var(--primary);
+            background-color: #003399;
             border-radius: 10px;
         }
         .news-card {
@@ -378,7 +381,7 @@
                 <h2 class="section-title">新着情報<br>作業実績</h2>
                 <div id="news-section">
                     <div id="news-container" class="news-grid">
-                        <div class="news-loading">情報を読み込み中...</div>
+                        <p>読み込み中...</p>
                     </div>
                 </div>
             </div>

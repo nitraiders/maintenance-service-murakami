@@ -6,30 +6,25 @@
     <title>メンテナンスサービス村上 - 管理画面</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
-        .logo { width: 50px; margin-bottom: 10px; }
-        h2 { color: #333; margin-bottom: 30px; }
-        .form-group { text-align: left; margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; color: #555; }
-        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        input[type="file"] { padding: 8px; background: #fff; }
-        button { background: #003399; color: white; border: none; padding: 15px; border-radius: 30px; cursor: pointer; width: 100%; font-size: 18px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; font-size: 20px; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; font-size: 14px; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { background: #003399; color: white; border: none; padding: 12px; border-radius: 30px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
         button:hover { background: #002266; }
         button:disabled { background: #ccc; }
         #login-section, #form-section { display: none; }
-        .success-msg { color: #28a745; margin-top: 15px; font-weight: bold; display: none; }
+        .success-msg { color: #28a745; margin-top: 10px; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
-
 <div class="card">
-    <img src="assets/images/maintenance-service-murakami_rogo.png" alt="logo" class="logo">
     <div id="login-section">
         <h2>管理者ログイン</h2>
         <input type="password" id="admin-pass" placeholder="パスワードを入力">
         <button onclick="checkPassword()">ログイン</button>
     </div>
-
     <div id="form-section">
         <h2>新着情報の投稿</h2>
         <div class="form-group">
@@ -38,93 +33,47 @@
         </div>
         <div class="form-group">
             <label>カテゴリ</label>
-            <select id="post-category">
-                <option value="新着情報">新着情報</option>
-                <option value="作業実績">作業実績</option>
-            </select>
+            <select id="post-category"><option value="新着情報">新着情報</option><option value="作業実績">作業実績</option></select>
         </div>
         <div class="form-group">
             <label>内容</label>
-            <textarea id="post-content" rows="4" placeholder="投稿内容を入力してください"></textarea>
+            <textarea id="post-content" rows="4"></textarea>
         </div>
         <div class="form-group">
-            <label>画像を選択 (カメラ/フォルダ)</label>
+            <label>画像 (カメラ/フォルダ)</label>
             <input type="file" id="post-image" accept="image/*">
         </div>
-        <button id="submit-btn" onclick="submitPost()">🚀 投稿する</button>
-        <p class="success-msg" id="success-msg">投稿が完了しました！</p>
-        <p><a href="#" onclick="location.reload()" style="color:#888; font-size:14px; text-decoration:none;">ログアウト</a></p>
+        <button id="submit-btn" onclick="submitPost()">投稿する</button>
+        <p class="success-msg" id="success-msg">投稿完了！反映まで1分ほどかかる場合があります。</p>
     </div>
 </div>
-
 <script>
-    // 統一版GASのURL
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwHTM0IBJZBHjaPh50R6_4T9rAZhcAnToWTTDr_oiLR292b7ZaReWWQ5FSjMTHkI0dr/exec';
-    const CORRECT_PASS = 'msm2724'; // パスワードを更新しました
+    const CORRECT_PASS = 'msm2724';
 
-    // ログインチェック
     function checkPassword() {
-        const pass = document.getElementById('admin-pass').value;
-        if (pass === CORRECT_PASS) {
+        if (document.getElementById('admin-pass').value === CORRECT_PASS) {
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('form-section').style.display = 'block';
             document.getElementById('post-date').valueAsDate = new Date();
-        } else {
-            alert('パスワードが違います');
-        }
+        } else { alert('パスワードが違います'); }
     }
     document.getElementById('login-section').style.display = 'block';
 
-    // 投稿処理
     async function submitPost() {
         const btn = document.getElementById('submit-btn');
         const fileInput = document.getElementById('post-image');
         const content = document.getElementById('post-content').value;
-        
         if (!content) return alert('内容を入力してください');
-
-        btn.disabled = true;
-        btn.innerText = '送信中...';
-
+        btn.disabled = true; btn.innerText = '送信中...';
         let base64Image = "";
-        if (fileInput.files.length > 0) {
-            base64Image = await convertFileToBase64(fileInput.files[0]);
-        }
-
-        const payload = {
-            action: 'post_news',
-            password: CORRECT_PASS,
-            date: document.getElementById('post-date').value,
-            category: document.getElementById('post-category').value,
-            content: content,
-            image: base64Image
-        };
-
+        if (fileInput.files.length > 0) { base64Image = await new Promise(r => { const f = new FileReader(); f.onload = e => r(e.target.result); f.readAsDataURL(fileInput.files[0]); }); }
         try {
-            await fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
+            await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'post_news', password: CORRECT_PASS, date: document.getElementById('post-date').value, category: document.getElementById('post-category').value, content: content, image: base64Image }) });
             document.getElementById('success-msg').style.display = 'block';
-            document.getElementById('post-content').value = '';
-            fileInput.value = '';
+            document.getElementById('post-content').value = ''; fileInput.value = '';
             setTimeout(() => { document.getElementById('success-msg').style.display = 'none'; }, 3000);
-        } catch (e) {
-            alert('エラーが発生しました');
-        } finally {
-            btn.disabled = false;
-            btn.innerText = '🚀 投稿する';
-        }
-    }
-
-    // 画像をBase64に変換するヘルパー関数
-    function convertFileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
+        } catch (e) { alert('エラーが発生しました'); } finally { btn.disabled = false; btn.innerText = '投稿する'; }
     }
 </script>
 </body>
