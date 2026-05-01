@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Deployment Timestamp: 2026-05-01T10:17:15 -->
+<!-- Deployment Timestamp: 2026-05-01T10:28:00 -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -69,7 +69,10 @@
         btn.disabled = true; btn.innerText = '送信中...';
         
         let base64Image = "";
-        if (fileInput.files.length > 0) { base64Image = await new Promise(r => { const f = new FileReader(); f.onload = e => r(e.target.result); f.readAsDataURL(fileInput.files[0]); }); }
+        if (fileInput.files.length > 0) {
+            // 画像をリサイズしてBase64変換
+            base64Image = await resizeAndConvert(fileInput.files[0]);
+        }
         
         const payload = { 
             action: 'post_news', 
@@ -81,15 +84,13 @@
         };
 
         try {
-            // mode: 'no-cors' を指定してCORS制限によるブロックを回避
+            // mode: 'no-cors' を指定してCORS制限を回避
             await fetch(GAS_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify(payload)
             });
             
-            // no-corsの場合、成功したかどうかはJavaScript側から判定できませんが、
-            // エラーが発生しなければ基本的にはGASへ届いています。
             document.getElementById('success-msg').style.display = 'block';
             document.getElementById('post-content').value = '';
             fileInput.value = '';
@@ -99,6 +100,35 @@
         } finally { 
             btn.disabled = false; btn.innerText = '投稿する'; 
         }
+    }
+
+    /**
+     * 画像をリサイズしてBase64に変換する
+     */
+    function resizeAndConvert(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    // JPEG形式、画質0.7で書き出し
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
     }
 </script>
 </body>
