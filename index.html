@@ -598,9 +598,17 @@
                         // 画像URLが有効な場合のみ画像エリアを作成
                         let imageHtml = '';
                         if (item.image && typeof item.image === 'string' && item.image.startsWith('http')) {
+                            // GoogleドライブのURLをサムネイル用URLに変換して安定性を高める
+                            let displayUrl = item.image;
+                            const fileIdMatch = item.image.match(/id=([^&]+)/);
+                            if (item.image.includes('drive.google.com') && fileIdMatch) {
+                                displayUrl = `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}&sz=w1000`;
+                            }
+
                             imageHtml = `
                                 <div class="news-img-wrapper">
-                                    <img src="${item.image}" alt="${item.content}" loading="lazy" onerror="this.closest('.news-img-wrapper').style.display='none'">
+                                    <img src="${displayUrl}" alt="${item.content}" loading="lazy" 
+                                         onerror="if(this.src.includes('thumbnail')){this.src='${item.image}';}else{this.closest('.news-img-wrapper').style.display='none';}">
                                 </div>
                             `;
                         }
