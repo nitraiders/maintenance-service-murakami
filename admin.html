@@ -78,17 +78,19 @@
     }
     document.getElementById('login-section').style.display = 'block';
 
+    let postsData = []; // データを保持するグローバル変数
+
     async function loadPosts() {
         const listDiv = document.getElementById('news-list');
         try {
             const response = await fetch(GAS_URL);
-            const data = await response.json();
+            postsData = await response.json();
             listDiv.innerHTML = '';
-            if (data.length === 0) {
+            if (postsData.length === 0) {
                 listDiv.innerHTML = '<p style="text-align:center; color:#888;">投稿はありません</p>';
                 return;
             }
-            data.forEach(item => {
+            postsData.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'news-item';
                 div.innerHTML = `
@@ -96,7 +98,7 @@
                         <div class="news-date-small">${item.date} [${item.category}]</div>
                         <div class="news-text-small">${item.content}</div>
                     </div>
-                    <button class="del-btn" onclick="deletePost('${item.content.replace(/'/g, "\\'")}', '${item.date}')">削除</button>
+                    <button class="del-btn" onclick="deletePostByIndex(${index})">削除</button>
                 `;
                 listDiv.appendChild(div);
             });
@@ -105,20 +107,27 @@
         }
     }
 
-    async function deletePost(content, date) {
-        if (!confirm('この投稿を削除しますか？')) return;
+    async function deletePostByIndex(index) {
+        const item = postsData[index];
+        if (!item || !confirm('この投稿を削除しますか？')) return;
         
         // 日付形式を yyyy-MM-dd に統一
-        const formattedDate = date.replace(/\//g, '-');
+        const formattedDate = item.date.replace(/\//g, '-');
 
         try {
             await fetch(GAS_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: JSON.stringify({ action: 'delete_news', password: CORRECT_PASS, content: content, date: formattedDate })
+                body: JSON.stringify({ 
+                    action: 'delete_news', 
+                    password: CORRECT_PASS, 
+                    id: item.id,
+                    content: item.content, 
+                    date: formattedDate 
+                })
             });
             alert('削除リクエストを送信しました（反映まで数秒かかります）');
-            loadPosts(); // 再読み込み
+            setTimeout(loadPosts, 2000); // 反映待ち
         } catch (e) {
             alert('エラーが発生しました');
         }

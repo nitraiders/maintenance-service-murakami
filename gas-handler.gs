@@ -54,20 +54,7 @@ function doPost(e) {
       if (params.password !== ADMIN_PASSWORD) {
         return createJsonResponse({ status: "error", message: "認証に失敗しました" });
       }
-      const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName("新着情報");
-      if (!sheet) return createJsonResponse({ status: "error", message: "シートが見つかりません" });
-
-      const data = sheet.getDataRange().getValues();
-      // 内容と日付が一致する行を末尾から探して削除
-      for (let i = data.length - 1; i >= 1; i--) {
-        const rowDate = data[i][0] instanceof Date ? Utilities.formatDate(data[i][0], "JST", "yyyy-MM-dd") : data[i][0];
-        if (data[i][2] === params.content && rowDate === params.date) {
-          sheet.deleteRow(i + 1);
-          return createJsonResponse({ status: "success", message: "削除しました" });
-        }
-      }
-      return createJsonResponse({ status: "error", message: "対象が見つかりませんでした" });
+      return deleteNews(params);
     }
 
     // --- 問い合わせフォーム処理 ---
@@ -107,7 +94,8 @@ function doGet(e) {
     if (data.length <= 1) return createJsonResponse([]); // ヘッダーのみの場合
 
     data.shift();
-    const result = data.map(row => ({
+    const result = data.map((row, index) => ({
+      id: row[4] instanceof Date ? row[4].getTime() : row[4], // 登録日時をIDとして使用
       date: row[0] instanceof Date ? Utilities.formatDate(row[0], "JST", "yyyy/MM/dd") : row[0],
       category: row[1],
       content: row[2],
@@ -117,6 +105,28 @@ function doGet(e) {
   } catch (error) {
     return createJsonResponse({ error: error.toString() });
   }
+}
+
+function deleteNews(params) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("新着情報");
+  if (!sheet) return createJsonResponse({ status: "error", message: "シートが見つかりません" });
+
+  const data = sheet.getDataRange().getValues();
+  // ヘッダーを除いたデータ行を末尾からループ
+  for (let i = data.length - 1; i >= 1; i--) {
+    const rowId = data[i][4] instanceof Date ? data[i][4].getTime() : data[i][4];
+    const rowDate = data[i][0] instanceof Date ? Utilities.formatDate(data[i][0], "JST", "yyyy-MM-dd") : data[i][0];
+    const rowContent = String(data[i][2]).trim();
+    
+    // IDが一致するか、または（IDがない場合の互換性のために）内容と日付が一致する場合
+    if ((params.id && rowId == params.id) || 
+        (!params.id && rowContent === String(params.content).trim() && rowDate === params.date)) {
+      sheet.deleteRow(i + 1);
+      return createJsonResponse({ status: "success", message: "削除しました" });
+    }
+  }
+  return createJsonResponse({ status: "error", message: "対象が見つかりませんでした" });
 }
 
 function saveImageToDrive(base64Data) {
