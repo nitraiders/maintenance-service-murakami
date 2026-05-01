@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Deployment Timestamp: 2026-05-01T10:42:15 -->
+<!-- Deployment Timestamp: 2026-05-01T10:59:00 -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     <title>メンテナンスサービス村上 - 管理画面</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; margin: 20px; }
         h2 { color: #333; margin-bottom: 20px; font-size: 20px; }
         .form-group { text-align: left; margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; font-size: 14px; }
@@ -17,6 +17,14 @@
         button:disabled { background: #ccc; }
         #login-section, #form-section { display: none; }
         .success-msg { color: #28a745; margin-top: 10px; font-weight: bold; display: none; }
+        
+        /* 投稿一覧のスタイル */
+        .news-item { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .news-info { flex-grow: 1; overflow: hidden; }
+        .news-date-small { font-size: 12px; color: #888; }
+        .news-text-small { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .del-btn { background: #dc3545; padding: 5px 12px; font-size: 12px; width: auto; margin-top: 0; border-radius: 5px; }
+        .del-btn:hover { background: #a71d2a; }
     </style>
 </head>
 <body>
@@ -45,7 +53,15 @@
             <input type="file" id="post-image" accept="image/*">
         </div>
         <button id="submit-btn" onclick="submitPost()">投稿する</button>
-        <p class="success-msg" id="success-msg">投稿完了！反映まで1分ほどかかる場合があります。</p>
+        <p class="success-msg" id="success-msg">投稿完了！</p>
+        
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+        <h2>投稿管理 (削除)</h2>
+        <div id="news-list" style="text-align: left;">
+            <p style="color:#888; text-align:center;">読み込み中...</p>
+        </div>
+        
+        <p style="margin-top: 30px;"><a href="#" onclick="location.reload()" style="color:#888; font-size:14px; text-decoration:none;">ログアウト</a></p>
     </div>
 </div>
 <script>
@@ -57,9 +73,56 @@
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('form-section').style.display = 'block';
             document.getElementById('post-date').valueAsDate = new Date();
+            fetchList(); // 一覧を取得
         } else { alert('パスワードが違います'); }
     }
     document.getElementById('login-section').style.display = 'block';
+
+    async function fetchList() {
+        const listDiv = document.getElementById('news-list');
+        try {
+            const response = await fetch(GAS_URL);
+            const data = await response.json();
+            listDiv.innerHTML = '';
+            if (data.length === 0) {
+                listDiv.innerHTML = '<p style="text-align:center; color:#888;">投稿はありません</p>';
+                return;
+            }
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'news-item';
+                div.innerHTML = `
+                    <div class="news-info">
+                        <div class="news-date-small">${item.date} [${item.category}]</div>
+                        <div class="news-text-small">${item.content}</div>
+                    </div>
+                    <button class="del-btn" onclick="deletePost('${item.date}', '${item.content.replace(/'/g, "\\'")}')">削除</button>
+                `;
+                listDiv.appendChild(div);
+            });
+        } catch (e) {
+            listDiv.innerHTML = '<p style="color:red; text-align:center;">一覧の取得に失敗しました</p>';
+        }
+    }
+
+    async function deletePost(date, content) {
+        if (!confirm('この投稿を削除しますか？')) return;
+        
+        // 日付形式を yyyy-MM-dd に統一
+        const formattedDate = date.replace(/\//g, '-');
+
+        try {
+            await fetch(GAS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: 'delete_news', password: CORRECT_PASS, date: formattedDate, content: content })
+            });
+            alert('削除リクエストを送信しました');
+            fetchList(); // 再読み込み
+        } catch (e) {
+            alert('エラーが発生しました');
+        }
+    }
 
     async function submitPost() {
         const btn = document.getElementById('submit-btn');
@@ -69,42 +132,21 @@
         btn.disabled = true; btn.innerText = '送信中...';
         
         let base64Image = "";
-        if (fileInput.files.length > 0) {
-            // 画像をリサイズしてBase64変換
-            base64Image = await resizeAndConvert(fileInput.files[0]);
-        }
+        if (fileInput.files.length > 0) { base64Image = await resizeAndConvert(fileInput.files[0]); }
         
-        const payload = { 
-            action: 'post_news', 
-            password: CORRECT_PASS, 
-            date: document.getElementById('post-date').value, 
-            category: document.getElementById('post-category').value, 
-            content: content, 
-            image: base64Image 
-        };
-
         try {
-            // mode: 'no-cors' を指定してCORS制限を回避
             await fetch(GAS_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ action: 'post_news', password: CORRECT_PASS, date: document.getElementById('post-date').value, category: document.getElementById('post-category').value, content: content, image: base64Image })
             });
-            
             document.getElementById('success-msg').style.display = 'block';
-            document.getElementById('post-content').value = '';
-            fileInput.value = '';
+            document.getElementById('post-content').value = ''; fileInput.value = '';
             setTimeout(() => { document.getElementById('success-msg').style.display = 'none'; }, 5000);
-        } catch (e) {
-            alert('エラーが発生しました'); 
-        } finally { 
-            btn.disabled = false; btn.innerText = '投稿する'; 
-        }
+            fetchList(); // 一覧を更新
+        } catch (e) { alert('エラーが発生しました'); } finally { btn.disabled = false; btn.innerText = '投稿する'; }
     }
 
-    /**
-     * 画像をリサイズしてBase64に変換する
-     */
     function resizeAndConvert(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -113,16 +155,10 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 800;
-                    let width = img.width;
-                    let height = img.height;
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
+                    let width = img.width; let height = img.height;
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    // JPEG形式、画質0.7で書き出し
+                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
                     resolve(canvas.toDataURL('image/jpeg', 0.7));
                 };
                 img.src = e.target.result;

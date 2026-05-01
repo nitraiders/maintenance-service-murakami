@@ -49,6 +49,27 @@ function doPost(e) {
       return createJsonResponse({ status: "success", type: "news" });
     }
 
+    // --- 新着情報・作業実績の削除処理 ---
+    if (params.action === 'delete_news') {
+      if (params.password !== ADMIN_PASSWORD) {
+        return createJsonResponse({ status: "error", message: "認証に失敗しました" });
+      }
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      const sheet = ss.getSheetByName("新着情報");
+      if (!sheet) return createJsonResponse({ status: "error", message: "シートが見つかりません" });
+
+      const data = sheet.getDataRange().getValues();
+      // 内容と日付が一致する行を末尾から探して削除
+      for (let i = data.length - 1; i >= 1; i--) {
+        const rowDate = data[i][0] instanceof Date ? Utilities.formatDate(data[i][0], "JST", "yyyy-MM-dd") : data[i][0];
+        if (data[i][2] === params.content && rowDate === params.date) {
+          sheet.deleteRow(i + 1);
+          return createJsonResponse({ status: "success", message: "削除しました" });
+        }
+      }
+      return createJsonResponse({ status: "error", message: "対象が見つかりませんでした" });
+    }
+
     // --- 問い合わせフォーム処理 ---
     return handleInquiry(params);
 
