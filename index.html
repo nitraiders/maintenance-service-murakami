@@ -102,7 +102,7 @@
         .logo img { height: 44px; display: block; width: auto; }
         .logo span { font-size: 1.4rem; font-weight: 900; color: var(--logo-green); letter-spacing: -0.01em; }
 
-        .nav-menu { display: flex; gap: 24px; align-items: center; }
+        .nav-menu { display: flex; gap: 16px; align-items: center; }
         .nav-menu a { text-decoration: none; color: var(--text-main); font-size: 0.95rem; font-weight: 500; }
         
         .btn-call, .btn-mail, .submit-btn {
@@ -629,15 +629,16 @@
 
             async function fetchNews() {
                 try {
-                    const response = await fetch(`${GAS_BASE_URL}?type=news`);
+                    const response = await fetch(GAS_BASE_URL);
                     if (!response.ok) throw new Error('Network response was not ok');
                     const data = await response.json();
+                    const news = data.news || [];
                     newsContainer.innerHTML = '';
-                    if (!data || data.length === 0) {
+                    if (news.length === 0) {
                         newsContainer.innerHTML = '<div class="news-loading">現在、新しい情報はありません。</div>';
                         return;
                     }
-                    data.forEach(item => {
+                    news.forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'news-card';
                         let imageHtml = '';
@@ -677,11 +678,12 @@
 
             async function fetchFaq() {
                 try {
-                    const response = await fetch(`${GAS_BASE_URL}?type=faq`);
+                    const response = await fetch(GAS_BASE_URL);
                     if (!response.ok) throw new Error('Network response was not ok');
                     const data = await response.json();
+                    const faqs = data.faq || [];
                     faqContainer.innerHTML = '';
-                    if (!data || data.length === 0) {
+                    if (faqs.length === 0) {
                         faqContainer.innerHTML = '<p style="text-align:center; color:var(--text-sub);">現在、よくあるご質問はありません。</p>';
                         return;
                     }
@@ -693,7 +695,7 @@
                         "mainEntity": []
                     };
 
-                    data.forEach(item => {
+                    faqs.forEach(item => {
                         const faqItem = document.createElement('div');
                         faqItem.className = 'faq-item';
                         faqItem.innerHTML = `

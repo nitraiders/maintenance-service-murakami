@@ -133,8 +133,9 @@
     async function loadPosts() {
         const listDiv = document.getElementById('news-list');
         try {
-            const response = await fetch(`${GAS_URL}?type=news`);
-            postsData = await response.json();
+            const response = await fetch(GAS_URL);
+            const data = await response.json();
+            postsData = data.news || [];
             listDiv.innerHTML = '';
             if (postsData.length === 0) {
                 listDiv.innerHTML = '<p style="text-align:center; color:#888;">投稿はありません</p>';
@@ -160,8 +161,9 @@
     async function loadFaqs() {
         const listDiv = document.getElementById('faq-list');
         try {
-            const response = await fetch(`${GAS_URL}?type=faq`);
-            faqsData = await response.json();
+            const response = await fetch(GAS_URL);
+            const data = await response.json();
+            faqsData = data.faq || [];
             listDiv.innerHTML = '';
             if (faqsData.length === 0) {
                 listDiv.innerHTML = '<p style="text-align:center; color:#888;">FAQはありません</p>';

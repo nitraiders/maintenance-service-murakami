@@ -117,40 +117,42 @@ function handleInquiry(params) {
 
 function doGet(e) {
   try {
-    const type = (e && e.parameter && e.parameter.type) || "news";
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    
-    if (type === "faq") {
-      const sheet = ss.getSheetByName("FAQ");
-      if (!sheet) return createJsonResponse([]);
-      const data = sheet.getDataRange().getValues();
-      if (data.length <= 1) return createJsonResponse([]);
-      
-      data.shift();
-      const result = data.map(row => ({
-        id: row[2] instanceof Date ? row[2].getTime() : row[2],
-        question: row[0],
-        answer: row[1]
-      }));
-      return createJsonResponse(result);
-    } else {
-      const sheet = ss.getSheetByName("新着情報");
-      if (!sheet) return createJsonResponse([]);
-      const data = sheet.getDataRange().getValues();
-      if (data.length <= 1) return createJsonResponse([]);
+    const result = { news: [], faq: [] };
 
-      data.shift();
-      const result = data.map(row => ({
-        id: row[4] instanceof Date ? row[4].getTime() : row[4],
-        date: row[0] instanceof Date ? Utilities.formatDate(row[0], "JST", "yyyy/MM/dd") : row[0],
-        category: row[1],
-        content: row[2],
-        image: row[3]
-      })).reverse();
-      return createJsonResponse(result);
+    // --- 新着情報シートの読み込み ---
+    const newsSheet = ss.getSheetByName("新着情報");
+    if (newsSheet) {
+      const newsData = newsSheet.getDataRange().getValues();
+      if (newsData.length > 1) {
+        newsData.shift();
+        result.news = newsData.map(row => ({
+          id: row[4] instanceof Date ? row[4].getTime() : row[4],
+          date: row[0] instanceof Date ? Utilities.formatDate(row[0], "JST", "yyyy/MM/dd") : row[0],
+          category: row[1],
+          content: row[2],
+          image: row[3]
+        })).reverse();
+      }
     }
+
+    // --- FAQシートの読み込み ---
+    const faqSheet = ss.getSheetByName("FAQ");
+    if (faqSheet) {
+      const faqData = faqSheet.getDataRange().getValues();
+      if (faqData.length > 1) {
+        faqData.shift();
+        result.faq = faqData.map(row => ({
+          id: row[2] instanceof Date ? row[2].getTime() : row[2],
+          question: row[0],
+          answer: row[1]
+        }));
+      }
+    }
+
+    return createJsonResponse(result);
   } catch (error) {
-    return createJsonResponse({ error: error.toString() });
+    return createJsonResponse({ status: "error", message: error.toString() });
   }
 }
 
