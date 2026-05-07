@@ -57,6 +57,36 @@ function doPost(e) {
       return deleteNews(params);
     }
 
+    // --- FAQの投稿処理 ---
+    if (params.action === 'post_faq') {
+      if (params.password !== ADMIN_PASSWORD) {
+        return createJsonResponse({ status: "error", message: "認証に失敗しました" });
+      }
+
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      let sheet = ss.getSheetByName("FAQ");
+      if (!sheet) {
+        sheet = ss.insertSheet("FAQ");
+        sheet.appendRow(["質問", "回答", "登録日時"]);
+      }
+
+      sheet.appendRow([
+        params.question,
+        params.answer,
+        new Date()
+      ]);
+
+      return createJsonResponse({ status: "success", type: "faq" });
+    }
+
+    // --- FAQの削除処理 ---
+    if (params.action === 'delete_faq') {
+      if (params.password !== ADMIN_PASSWORD) {
+        return createJsonResponse({ status: "error", message: "認証に失敗しました" });
+      }
+      return deleteFaq(params);
+    }
+
     // --- 問い合わせフォーム処理 ---
     return handleInquiry(params);
 
@@ -87,21 +117,38 @@ function handleInquiry(params) {
 
 function doGet(e) {
   try {
+    const type = (e && e.parameter && e.parameter.type) || "news";
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("新着情報");
-    if (!sheet) return createJsonResponse([]);
-    const data = sheet.getDataRange().getValues();
-    if (data.length <= 1) return createJsonResponse([]); // ヘッダーのみの場合
+    
+    if (type === "faq") {
+      const sheet = ss.getSheetByName("FAQ");
+      if (!sheet) return createJsonResponse([]);
+      const data = sheet.getDataRange().getValues();
+      if (data.length <= 1) return createJsonResponse([]);
+      
+      data.shift();
+      const result = data.map(row => ({
+        id: row[2] instanceof Date ? row[2].getTime() : row[2],
+        question: row[0],
+        answer: row[1]
+      }));
+      return createJsonResponse(result);
+    } else {
+      const sheet = ss.getSheetByName("新着情報");
+      if (!sheet) return createJsonResponse([]);
+      const data = sheet.getDataRange().getValues();
+      if (data.length <= 1) return createJsonResponse([]);
 
-    data.shift();
-    const result = data.map((row, index) => ({
-      id: row[4] instanceof Date ? row[4].getTime() : row[4], // 登録日時をIDとして使用
-      date: row[0] instanceof Date ? Utilities.formatDate(row[0], "JST", "yyyy/MM/dd") : row[0],
-      category: row[1],
-      content: row[2],
-      image: row[3]
-    })).reverse();
-    return createJsonResponse(result);
+      data.shift();
+      const result = data.map(row => ({
+        id: row[4] instanceof Date ? row[4].getTime() : row[4],
+        date: row[0] instanceof Date ? Utilities.formatDate(row[0], "JST", "yyyy/MM/dd") : row[0],
+        category: row[1],
+        content: row[2],
+        image: row[3]
+      })).reverse();
+      return createJsonResponse(result);
+    }
   } catch (error) {
     return createJsonResponse({ error: error.toString() });
   }
@@ -113,15 +160,29 @@ function deleteNews(params) {
   if (!sheet) return createJsonResponse({ status: "error", message: "シートが見つかりません" });
 
   const data = sheet.getDataRange().getValues();
-  // ヘッダーを除いたデータ行を末尾からループ
   for (let i = data.length - 1; i >= 1; i--) {
     const rowId = data[i][4] instanceof Date ? data[i][4].getTime() : data[i][4];
     const rowDate = data[i][0] instanceof Date ? Utilities.formatDate(data[i][0], "JST", "yyyy-MM-dd") : data[i][0];
     const rowContent = String(data[i][2]).trim();
     
-    // IDが一致するか、または（IDがない場合の互換性のために）内容と日付が一致する場合
     if ((params.id && rowId == params.id) || 
         (!params.id && rowContent === String(params.content).trim() && rowDate === params.date)) {
+      sheet.deleteRow(i + 1);
+      return createJsonResponse({ status: "success", message: "削除しました" });
+    }
+  }
+  return createJsonResponse({ status: "error", message: "対象が見つかりませんでした" });
+}
+
+function deleteFaq(params) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("FAQ");
+  if (!sheet) return createJsonResponse({ status: "error", message: "シートが見つかりません" });
+
+  const data = sheet.getDataRange().getValues();
+  for (let i = data.length - 1; i >= 1; i--) {
+    const rowId = data[i][2] instanceof Date ? data[i][2].getTime() : data[i][2];
+    if (params.id && rowId == params.id) {
       sheet.deleteRow(i + 1);
       return createJsonResponse({ status: "success", message: "削除しました" });
     }
