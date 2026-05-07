@@ -190,11 +190,12 @@
         const item = postsData[index];
         if (!item || !confirm('この投稿を削除しますか？')) return;
         const formattedDate = item.date.replace(/\//g, '-');
+        const trimmedContent = String(item.content).trim();
         try {
             await fetch(GAS_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: JSON.stringify({ action: 'delete_news', password: CORRECT_PASS, id: item.id, content: item.content, date: formattedDate })
+                body: JSON.stringify({ action: 'delete_news', password: CORRECT_PASS, id: item.id, content: trimmedContent, date: formattedDate })
             });
             alert('削除リクエストを送信しました');
             setTimeout(loadPosts, 2000);
@@ -204,11 +205,12 @@
     async function deleteFaqByIndex(index) {
         const item = faqsData[index];
         if (!item || !confirm('このFAQを削除しますか？')) return;
+        const trimmedQuestion = String(item.question).trim();
         try {
             await fetch(GAS_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: JSON.stringify({ action: 'delete_faq', password: CORRECT_PASS, id: item.id })
+                body: JSON.stringify({ action: 'delete_faq', password: CORRECT_PASS, id: item.id, question: trimmedQuestion })
             });
             alert('削除リクエストを送信しました');
             setTimeout(loadFaqs, 2000);
