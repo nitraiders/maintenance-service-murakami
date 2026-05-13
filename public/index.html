@@ -4,6 +4,7 @@
     <!-- Render → Cloudflare リダイレクト（Render上でのみ動作） -->
     <script>
       if (window.location.hostname.includes('onrender.com')) {
+        // meta refreshをJS側で動的に追加（Cloudflare側では発動しない）
         var meta = document.createElement('meta');
         meta.httpEquiv = 'refresh';
         meta.content = '5;url=https://maintenance-service-murakami.pages.dev';
@@ -29,7 +30,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>便利屋 メンテナンスサービス 村上 | 埼玉県草加市の住まい・お庭の修理</title>
-    <meta name="description" content="埼玉県草加市を中心に活動する便利屋。誠実・丁寧な作業を適正価格で提供します。">
+    <meta name="description" content="埼玉県草加市を中心に活動する便利屋「メンテナンスサービス村上」。蛇口交換、草むしり、家具組み立てなど、住まいの困りごとを誠実・丁寧・適正価格で解決します。お見積り無料。">
+    <meta name="keywords" content="便利屋,草加市,メンテナンス,修理,水漏れ,草むしり,剪定,伐採,家具組み立て,掃除">
+    <link rel="canonical" href="https://m-s-murakami.com/">
+    <meta property="og:url" content="https://m-s-murakami.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="便利屋 メンテナンスサービス 村上 | 埼玉県草加市の住まい・お庭の修理">
+    <meta property="og:description" content="埼玉県草加市を中心に活動する便利屋「メンテナンスサービス村上」。住まいの困りごとを誠実・丁寧・適正価格で解決します。">
+    <meta property="og:image" content="https://m-s-murakami.com/assets/images/maintenance-service-murakami_rogo.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- LLMO / Structured Data (LocalBusiness) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "メンテナンスサービス村上",
+      "description": "埼玉県草加市の住まいとお庭の便利屋サービス. 誠実・丁寧な対応を心がけています。",
+      "image": "https://maintenance-service-murakami.com/assets/images/maintenance-service-murakami_rogo.png",
+      "telephone": "090-3203-2724",
+      "url": "https://m-s-murakami.com/",
+      "address": {
+        "@type": "PostalAddress",
+        "addressRegion": "埼玉県",
+        "addressLocality": "草加市"
+      },
+      "areaServed": ["草加市", "足立区", "川口市", "八潮市", "越谷市"],
+      "priceRange": "￥3,300～"
+    }
+    </script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -79,7 +108,7 @@
         .logo img { height: 44px; display: block; width: auto; }
         .logo span { font-size: 1.4rem; font-weight: 900; color: var(--logo-green); letter-spacing: -0.01em; }
 
-        .nav-menu { display: flex; gap: 24px; align-items: center; }
+        .nav-menu { display: flex; gap: 16px; align-items: center; }
         .nav-menu a { text-decoration: none; color: var(--text-main); font-size: 0.95rem; font-weight: 500; }
         
         .btn-call, .btn-mail, .submit-btn {
@@ -154,6 +183,15 @@
         .info-list li { margin-bottom: 20px; display: flex; gap: 16px; align-items: flex-start; text-align: left; }
         .info-list i { color: var(--primary); font-size: 1.2rem; margin-top: 4px; }
 
+        /* FAQ Accordion */
+        .faq-accordion { margin-top: 0; }
+        .faq-item { border-bottom: 1px solid #eee; margin-bottom: 10px; }
+        .faq-question { width: 100%; text-align: left; background: none; border: none; padding: 20px; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); font-family: inherit; }
+        .faq-question i { color: var(--primary); transition: transform 0.3s; }
+        .faq-question.active i { transform: rotate(180deg); }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 20px; color: var(--text-sub); line-height: 1.8; }
+        .faq-answer.show { max-height: 500px; padding-bottom: 20px; }
+
         /* Modal Overlay & Content - BUG FIX: 消失したスタイルを復元 */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -173,6 +211,11 @@
         }
 
         .menu-logo-wrap { display: none; }
+
+        /* PC表示時に要素を隠すユーティリティ */
+        @media (min-width: 1025px) {
+            .lg-hidden { display: none !important; }
+        }
 
         @media (max-width: 1024px) {
             .nav-menu { display: none; }
@@ -220,11 +263,124 @@
             .menu-logo-wrap span { font-size: 1.1rem; font-weight: 900; color: var(--logo-green); }
         }
 
-        .hero-content {
+        /* 新着情報セクションのスタイル */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        /* スクロールエリアの共通設定 */
+        .scroll-container {
+            overflow-y: auto;
+            border: 1px solid rgba(0,0,0,0.05);
+            padding: 20px;
+            background: #fff;
+            border-radius: 20px;
+            margin-top: 40px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+        }
+        #news-section { max-height: 850px; }
+        #faq-section { max-height: 550px; margin-top: 20px; }
+
+        /* スタイリッシュなカスタムスクロールバー */
+        .scroll-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scroll-container::-webkit-scrollbar-track {
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        .scroll-container::-webkit-scrollbar-thumb {
+            background-color: #ddd;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+        .scroll-container::-webkit-scrollbar-thumb:hover {
+            background-color: var(--primary);
+        }
+        .news-card {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+        }
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+        .news-img-wrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: #eee;
+            position: relative;
+        }
+        .news-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .news-card:hover .news-img-wrapper img {
+            transform: scale(1.05);
+        }
+        .news-body {
+            padding: 24px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .news-meta {
+            display: flex;
             align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .news-date {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+        .news-category {
+            background: var(--bg-light);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .news-content {
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.6;
+            color: var(--text-main);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .news-loading {
             text-align: center;
+            padding: 40px;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .news-img-wrapper {
+                height: 180px;
+            }
         }
     </style>
 </head>
@@ -239,9 +395,10 @@
             <nav class="nav-menu" id="nav-menu">
                 <a href="#hero">ホーム</a>
                 <a href="#services">サービス</a>
-                <a href="#about">会社情報</a>
-                <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
-                <a href="#" class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールでお問い合わせ</a>
+                <a href="#faq">FAQ</a>
+                <a href="#about">プロフィール</a>
+                <a href="#" class="btn-call lg-hidden call-link"><i class="fas fa-phone"></i> 電話で相談</a>
+                <a href="#" class="open-modal-btn btn-mail lg-hidden"><i class="fas fa-envelope"></i> メールでお問い合わせ</a>
                 <div class="menu-logo-wrap">
                     <img src="assets/images/maintenance-service-murakami_rogo.png" alt="村上 アイコン">
                     <span>メンテナンスサービス村上</span>
@@ -252,7 +409,7 @@
     </header>
 
     <div class="floating-contact-wrap" id="floating-contact-wrap">
-        <a href="tel:09032032724" class="floating-btn call" aria-label="電話で相談"><i class="fas fa-phone"></i></a>
+        <a href="#" class="floating-btn call call-link" aria-label="電話で相談"><i class="fas fa-phone"></i></a>
         <button class="floating-btn mail open-modal-btn" aria-label="メールでお問い合わせ"><i class="fas fa-envelope"></i></button>
     </div>
 
@@ -264,8 +421,22 @@
                     <h1 class="hero-title">住まいの「困った」<br>即解決する<br>プロフェッショナル</h1>
                     <p class="hero-desc">蛇口交換から庭の草むしり<br>家具の組み立てなど<br>誠実・丁寧に対応可能な<br>あなたの町の便利屋です。</p>
                     <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
-                        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
+                        <a href="#" class="btn-call call-link"><i class="fas fa-phone"></i> 電話で相談</a>
                         <button class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールでお問い合わせ</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 新着情報・作業実績セクション -->
+        <section id="news" style="background-color: #fafafa;">
+            <div class="container">
+                <span class="section-label">NEWS & WORKS</span>
+                <h2 class="section-title">新着情報<br>作業実績</h2>
+                <div id="news-section" class="scroll-container">
+                    <div id="news-container" class="news-grid">
+                        <p>読み込み中...</p>
                     </div>
                 </div>
             </div>
@@ -342,6 +513,19 @@
             </div>
         </section>
 
+        <!-- Q&A Section -->
+        <section id="faq">
+            <div class="container">
+                <span class="section-label">Q & A</span>
+                <h2 class="section-title">よくあるご質問</h2>
+                <div id="faq-section" class="scroll-container">
+                    <div id="faq-container" class="faq-accordion">
+                        <p style="text-align:center; color:var(--text-sub);">読み込み中...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="about" class="about">
             <div class="container about-flex">
                 <div class="about-image"><img src="assets/images/maintenance-service-murakami_2.jpg" alt="店舗外観・風景"></div>
@@ -361,7 +545,7 @@
                         </li>
                     </ul>
                     <div style="display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; justify-content: center;">
-                        <a href="tel:09032032724" class="btn-call"><i class="fas fa-phone"></i> 電話で相談</a>
+                        <a href="#" class="btn-call call-link"><i class="fas fa-phone"></i> 電話で相談</a>
                         <button class="open-modal-btn btn-mail"><i class="fas fa-envelope"></i> メールでお問い合わせ</button>
                     </div>
                 </div>
@@ -396,7 +580,16 @@
     </footer>
 
     <script>
+        const CONTACT_PHONE = "090-3203-2724";
+        const CONTACT_PHONE_TEL = "tel:09032032724";
+        const GAS_BASE_URL = 'https://script.google.com/macros/s/AKfycbwHTM0IBJZBHjaPh50R6_4T9rAZhcAnToWTTDr_oiLR292b7ZaReWWQ5FSjMTHkI0dr/exec';
+
         document.addEventListener('DOMContentLoaded', () => {
+            // 電話番号リンクの統一設定
+            document.querySelectorAll('.call-link').forEach(link => {
+                link.href = CONTACT_PHONE_TEL;
+            });
+
             const hamburger = document.getElementById('hamburger');
             const navMenu = document.getElementById('nav-menu');
             const overlay = document.getElementById('contact-modal');
@@ -438,18 +631,138 @@
                 submitBtn.disabled = true;
                 const originalContent = submitBtn.innerHTML;
                 submitBtn.innerText = '送信中...';
-                const GAS_URL = 'https://script.google.com/macros/s/AKfycby0n7PYVlmf5eeCFhLKBlb87WJkZ8jiecw1W-P-d396DfqWjsZG6Uelxz6zT4QnaJ14/exec';
                 const params = new URLSearchParams(new FormData(form));
                 try {
-                    await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: params.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                    await fetch(GAS_BASE_URL, { method: 'POST', mode: 'no-cors', body: params.toString(), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
                     form.style.display = 'none';
                     successMsg.style.display = 'block';
                 } catch (error) {
-                    alert('送信に失敗しました。お問い合わせは直接携帯（090-3203-2724）までお願いいたします。');
+                    alert(`送信に失敗しました。お問い合わせは直接携帯（${CONTACT_PHONE}）までお願いいたします。`);
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalContent;
                 }
             };
+
+            // --- 新着情報取得処理 (GET) ---
+            const newsContainer = document.getElementById('news-container');
+
+            async function fetchNews() {
+                try {
+                    const response = await fetch(GAS_BASE_URL);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const data = await response.json();
+                    const news = data.news || [];
+                    newsContainer.innerHTML = '';
+                    if (news.length === 0) {
+                        newsContainer.innerHTML = '<div class="news-loading">現在、新しい情報はありません。</div>';
+                        return;
+                    }
+                    news.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'news-card';
+                        let imageHtml = '';
+                        if (item.image && typeof item.image === 'string' && item.image.startsWith('http')) {
+                            let displayUrl = item.image;
+                            const fileIdMatch = item.image.match(/id=([^&]+)/);
+                            if (item.image.includes('drive.google.com') && fileIdMatch) {
+                                displayUrl = `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}&sz=w1000`;
+                            }
+                            imageHtml = `
+                                <div class="news-img-wrapper">
+                                    <img src="${displayUrl}" alt="${item.content}" loading="lazy" 
+                                         onerror="if(this.src.includes('thumbnail')){this.src='${item.image}';}else{this.closest('.news-img-wrapper').style.display='none';}">
+                                </div>
+                            `;
+                        }
+                        card.innerHTML = `
+                            ${imageHtml}
+                            <div class="news-body">
+                                <div class="news-meta">
+                                    <span class="news-date">${item.date || ''}</span>
+                                    <span class="news-category">${item.category || 'お知らせ'}</span>
+                                </div>
+                                <p class="news-content">${item.content || ''}</p>
+                            </div>
+                        `;
+                        newsContainer.appendChild(card);
+                    });
+                } catch (error) {
+                    console.error('Fetch news error:', error);
+                    newsContainer.innerHTML = '<div class="news-loading">情報の取得に失敗しました。</div>';
+                }
+            }
+
+            // --- FAQ取得処理 (GET) ---
+            const faqContainer = document.getElementById('faq-container');
+
+            async function fetchFaq() {
+                try {
+                    const response = await fetch(GAS_BASE_URL);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const data = await response.json();
+                    const faqs = data.faq || [];
+                    faqContainer.innerHTML = '';
+                    if (faqs.length === 0) {
+                        faqContainer.innerHTML = '<p style="text-align:center; color:var(--text-sub);">現在、よくあるご質問はありません。</p>';
+                        return;
+                    }
+
+                    // FAQPage 構造化データの作成用
+                    const faqSchema = {
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": []
+                    };
+
+                    faqs.forEach(item => {
+                        const faqItem = document.createElement('div');
+                        faqItem.className = 'faq-item';
+                        const displayQuestion = item.question.startsWith('Q') ? item.question : `Q. ${item.question}`;
+                        const displayAnswer = item.answer.startsWith('A') ? item.answer : `A. ${item.answer}`;
+                        faqItem.innerHTML = `
+                            <button class="faq-question">
+                                <span>${displayQuestion}</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="faq-answer">
+                                <p>${displayAnswer}</p>
+                            </div>
+                        `;
+                        faqContainer.appendChild(faqItem);
+
+                    // スキーマに追加
+                    faqSchema.mainEntity.push({
+                        "@type": "Question",
+                        "name": item.question,
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": item.answer
+                        }
+                    });
+
+                    // アコーディオン動作の追加
+                    const btn = faqItem.querySelector('.faq-question');
+                    const answer = faqItem.querySelector('.faq-answer');
+                    btn.addEventListener('click', () => {
+                        btn.classList.toggle('active');
+                        answer.classList.toggle('show');
+                    });
+                });
+
+                // JSON-LDを動的に追加
+                const script = document.createElement('script');
+                script.type = 'application/ld+json';
+                script.text = JSON.stringify(faqSchema);
+                document.head.appendChild(script);
+
+                } catch (error) {
+                    console.error('Fetch faq error:', error);
+                    faqContainer.innerHTML = '<p style="text-align:center; color:red;">Q&Aの取得に失敗しました。</p>';
+                }
+            }
+
+            fetchNews();
+            fetchFaq();
         });
     </script>
 </body>

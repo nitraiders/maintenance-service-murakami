@@ -32,7 +32,13 @@
     <title>便利屋 メンテナンスサービス 村上 | 埼玉県草加市の住まい・お庭の修理</title>
     <meta name="description" content="埼玉県草加市を中心に活動する便利屋「メンテナンスサービス村上」。蛇口交換、草むしり、家具組み立てなど、住まいの困りごとを誠実・丁寧・適正価格で解決します。お見積り無料。">
     <meta name="keywords" content="便利屋,草加市,メンテナンス,修理,水漏れ,草むしり,剪定,伐採,家具組み立て,掃除">
-    <link rel="canonical" href="https://maintenance-service-murakami.com/">
+    <link rel="canonical" href="https://m-s-murakami.com/">
+    <meta property="og:url" content="https://m-s-murakami.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="便利屋 メンテナンスサービス 村上 | 埼玉県草加市の住まい・お庭の修理">
+    <meta property="og:description" content="埼玉県草加市を中心に活動する便利屋「メンテナンスサービス村上」。住まいの困りごとを誠実・丁寧・適正価格で解決します。">
+    <meta property="og:image" content="https://m-s-murakami.com/assets/images/maintenance-service-murakami_rogo.png">
+    <meta name="twitter:card" content="summary_large_image">
 
     <!-- LLMO / Structured Data (LocalBusiness) -->
     <script type="application/ld+json">
@@ -43,7 +49,7 @@
       "description": "埼玉県草加市の住まいとお庭の便利屋サービス。誠実・丁寧な対応を心がけています。",
       "image": "https://maintenance-service-murakami.com/assets/images/maintenance-service-murakami_rogo.png",
       "telephone": "090-3203-2724",
-      "url": "https://maintenance-service-murakami.com/",
+      "url": "https://m-s-murakami.com/",
       "address": {
         "@type": "PostalAddress",
         "addressRegion": "埼玉県",
@@ -178,7 +184,7 @@
         .info-list i { color: var(--primary); font-size: 1.2rem; margin-top: 4px; }
 
         /* FAQ Accordion */
-        .faq-accordion { margin-top: 40px; }
+        .faq-accordion { margin-top: 0; }
         .faq-item { border-bottom: 1px solid #eee; margin-bottom: 10px; }
         .faq-question { width: 100%; text-align: left; background: none; border: none; padding: 20px; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); font-family: inherit; }
         .faq-question i { color: var(--primary); transition: transform 0.3s; }
@@ -274,7 +280,7 @@
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
         }
         #news-section { max-height: 850px; }
-        #faq-section { max-height: 550px; margin-top: 40px; }
+        #faq-section { max-height: 550px; margin-top: 20px; }
 
         /* スタイリッシュなカスタムスクロールバー */
         .scroll-container::-webkit-scrollbar {
@@ -711,13 +717,15 @@
                     faqs.forEach(item => {
                         const faqItem = document.createElement('div');
                         faqItem.className = 'faq-item';
+                        const displayQuestion = item.question.startsWith('Q') ? item.question : `Q. ${item.question}`;
+                        const displayAnswer = item.answer.startsWith('A') ? item.answer : `A. ${item.answer}`;
                         faqItem.innerHTML = `
                             <button class="faq-question">
-                                <span>${item.question}</span>
+                                <span>${displayQuestion}</span>
                                 <i class="fas fa-chevron-down"></i>
                             </button>
                             <div class="faq-answer">
-                                <p>${item.answer}</p>
+                                <p>${displayAnswer}</p>
                             </div>
                         `;
                         faqContainer.appendChild(faqItem);
