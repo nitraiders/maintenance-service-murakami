@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>メンテナンスサービス村上 - 管理画面</title>
+    <meta name="robots" content="noindex, nofollow">
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; margin: 20px; }
@@ -103,6 +104,14 @@
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwHTM0IBJZBHjaPh50R6_4T9rAZhcAnToWTTDr_oiLR292b7ZaReWWQ5FSjMTHkI0dr/exec';
     const CORRECT_PASS = 'msm2724';
 
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[char]));
+
     function checkPassword() {
         if (document.getElementById('admin-pass').value === CORRECT_PASS) {
             document.getElementById('login-section').style.display = 'none';
@@ -146,8 +155,8 @@
                 div.className = 'list-item';
                 div.innerHTML = `
                     <div class="item-info">
-                        <div class="item-meta">${item.date} [${item.category}]</div>
-                        <div class="item-text">${item.content}</div>
+                        <div class="item-meta">${escapeHtml(item.date)} [${escapeHtml(item.category)}]</div>
+                        <div class="item-text">${escapeHtml(item.content)}</div>
                     </div>
                     <button class="del-btn" onclick="deletePostByIndex(${index})">削除</button>
                 `;
@@ -174,8 +183,8 @@
                 div.className = 'list-item';
                 div.innerHTML = `
                     <div class="item-info">
-                        <div class="item-text">Q: ${item.question}</div>
-                        <div class="item-meta">A: ${item.answer}</div>
+                        <div class="item-text">Q: ${escapeHtml(item.question)}</div>
+                        <div class="item-meta">A: ${escapeHtml(item.answer)}</div>
                     </div>
                     <button class="del-btn" onclick="deleteFaqByIndex(${index})">削除</button>
                 `;
