@@ -32,6 +32,17 @@
         .item-text { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .del-btn { background: #dc3545; padding: 5px 12px; font-size: 12px; width: auto; margin-top: 0; border-radius: 5px; }
         .del-btn:hover { background: #a71d2a; }
+
+        @media (max-width: 430px) {
+            html, body { width: 100%; overflow-x: hidden; }
+            body { display: block; min-height: 100dvh; padding: 12px; box-sizing: border-box; }
+            .card { width: 100%; max-width: none; margin: 0 auto; padding: 18px 14px; border-radius: 14px; box-sizing: border-box; }
+            .tabs { width: 100%; gap: 6px; box-sizing: border-box; }
+            .tab-btn { flex: 1 1 0; min-width: 0; width: auto; margin-top: 0; padding: 10px 6px; font-size: 14px; white-space: nowrap; }
+            input, textarea, select { max-width: 100%; min-width: 0; }
+            input[type="file"] { display: block; font-size: 14px; padding: 8px; }
+            input[type="file"]::file-selector-button { max-width: 100%; margin-right: 6px; padding: 6px 8px; }
+        }
     </style>
 </head>
 <body>
