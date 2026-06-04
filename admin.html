@@ -26,11 +26,11 @@
         
         /* 投稿一覧のスタイル */
         .item-list { text-align: left; margin-top: 20px; }
-        .list-item { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .item-info { flex-grow: 1; overflow: hidden; }
+        .list-item { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-width: 0; }
+        .item-info { flex: 1 1 auto; min-width: 0; overflow: hidden; }
         .item-meta { font-size: 12px; color: #888; }
         .item-text { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .del-btn { background: #dc3545; padding: 5px 12px; font-size: 12px; width: auto; margin-top: 0; border-radius: 5px; }
+        .del-btn { background: #dc3545; padding: 5px 12px; font-size: 12px; width: auto; min-width: 48px; margin-top: 0; border-radius: 5px; flex: 0 0 auto; white-space: nowrap; line-height: 1.4; text-align: center; }
         .del-btn:hover { background: #a71d2a; }
         .image-count { margin-top: 6px; color: #666; font-size: 13px; line-height: 1.5; }
 
@@ -41,8 +41,11 @@
             .tabs { width: 100%; gap: 6px; box-sizing: border-box; }
             .tab-btn { flex: 1 1 0; min-width: 0; width: auto; margin-top: 0; padding: 10px 6px; font-size: 14px; white-space: nowrap; }
             input, textarea, select { max-width: 100%; min-width: 0; }
+            input[type="date"] { display: block; width: 100%; min-width: 0; max-width: 100%; -webkit-appearance: none; appearance: none; }
             input[type="file"] { display: block; font-size: 14px; padding: 8px; }
             input[type="file"]::file-selector-button { max-width: 100%; margin-right: 6px; padding: 6px 8px; }
+            .list-item { gap: 8px; }
+            .del-btn { min-width: 52px; padding: 6px 10px; }
         }
     </style>
 </head>
