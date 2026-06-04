@@ -5,6 +5,8 @@
 
 const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
 const ADMIN_PASSWORD = "msm2724";
+const NEWS_SHEET_NAME = "新着情報";
+const FAQ_SHEET_NAME = "FAQ";
 
 // ──────────────────────────────────────────────────────────────
 // 🛠️ API ハンドラ (doGet / doPost)
@@ -15,11 +17,11 @@ function doGet(e) {
   logSpreadsheetContext(ss, "doGet");
   
   // 1. ニュース取得
-  const newsSheet = getRequiredSheet(ss, "news", "doGet");
+  const newsSheet = getRequiredSheet(ss, NEWS_SHEET_NAME, "doGet");
   if (!newsSheet) {
     return createJsonResponse({
       status: "error",
-      message: "newsシートが見つかりません",
+      message: `${NEWS_SHEET_NAME}シートが見つかりません`,
       spreadsheetId: ss.getId(),
       sheets: getSheetNames(ss)
     });
@@ -40,11 +42,11 @@ function doGet(e) {
   }
   
   // 2. FAQ取得
-  const faqSheet = getRequiredSheet(ss, "faq", "doGet");
+  const faqSheet = getRequiredSheet(ss, FAQ_SHEET_NAME, "doGet");
   if (!faqSheet) {
     return createJsonResponse({
       status: "error",
-      message: "faqシートが見つかりません",
+      message: `${FAQ_SHEET_NAME}シートが見つかりません`,
       spreadsheetId: ss.getId(),
       sheets: getSheetNames(ss)
     });
@@ -106,11 +108,11 @@ function doPost(e) {
 // ──────────────────────────────────────────────────────────────
 
 function handlePostNews(ss, params) {
-  const sheet = getRequiredSheet(ss, "news", "post_news");
+  const sheet = getRequiredSheet(ss, NEWS_SHEET_NAME, "post_news");
   if (!sheet) {
     return createJsonResponse({
       status: "error",
-      message: "newsシートが見つからないため投稿を中止しました",
+      message: `${NEWS_SHEET_NAME}シートが見つからないため投稿を中止しました`,
       spreadsheetId: ss.getId(),
       sheets: getSheetNames(ss)
     });
@@ -149,7 +151,7 @@ function handlePostNews(ss, params) {
 }
 
 function handleDeleteNews(ss, params) {
-  const sheet = ss.getSheetByName("news");
+  const sheet = ss.getSheetByName(NEWS_SHEET_NAME);
   if (!sheet) return createJsonResponse({ status: "error", message: "シートが見つかりません" });
   
   const data = sheet.getDataRange().getValues();
@@ -165,11 +167,11 @@ function handleDeleteNews(ss, params) {
 }
 
 function handlePostFaq(ss, params) {
-  const sheet = getRequiredSheet(ss, "faq", "post_faq");
+  const sheet = getRequiredSheet(ss, FAQ_SHEET_NAME, "post_faq");
   if (!sheet) {
     return createJsonResponse({
       status: "error",
-      message: "faqシートが見つからないため投稿を中止しました",
+      message: `${FAQ_SHEET_NAME}シートが見つからないため投稿を中止しました`,
       spreadsheetId: ss.getId(),
       sheets: getSheetNames(ss)
     });
@@ -179,7 +181,7 @@ function handlePostFaq(ss, params) {
 }
 
 function handleDeleteFaq(ss, params) {
-  const sheet = ss.getSheetByName("faq");
+  const sheet = ss.getSheetByName(FAQ_SHEET_NAME);
   if (!sheet) return createJsonResponse({ status: "error", message: "シートが見つかりません" });
   
   const data = sheet.getDataRange().getValues();
