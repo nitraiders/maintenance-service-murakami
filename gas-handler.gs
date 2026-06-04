@@ -91,17 +91,34 @@ function handlePostNews(ss, params) {
   const sheet = ss.getSheetByName("news") || createNewsSheet(ss);
   const imageUrls = [];
   const base64Images = normalizeBase64Images(params);
+  console.log(JSON.stringify({
+    event: "post_news_start",
+    category: params.category || "お知らせ",
+    hasLegacyImage: !!params.image,
+    imageCount: base64Images.length,
+    contentLength: params.content ? String(params.content).length : 0
+  }));
   
   // 画像がある場合はGoogleドライブに保存
   for (let i = 0; i < Math.min(base64Images.length, 5); i++) {
     if (base64Images[i] && base64Images[i].startsWith("data:image")) {
       const imageUrl = saveImageToDrive(base64Images[i], `news_${Date.now()}_${i + 1}.jpg`);
+      console.log(JSON.stringify({
+        event: "post_news_image_saved",
+        index: i + 1,
+        success: !!imageUrl
+      }));
       if (imageUrl) imageUrls.push(imageUrl);
     }
   }
   const imageValue = imageUrls.length > 1 ? JSON.stringify(imageUrls) : (imageUrls[0] || "");
   
   sheet.appendRow([params.date || new Date(), params.category || "お知らせ", params.content, imageValue, new Date()]);
+  console.log(JSON.stringify({
+    event: "post_news_done",
+    savedImageCount: imageUrls.length,
+    storedAsArray: imageUrls.length > 1
+  }));
   return createJsonResponse({ status: "success", message: "投稿完了" });
 }
 
@@ -161,6 +178,7 @@ function handleContactForm(ss, params) {
 function saveImageToDrive(base64Data, filename) {
   try {
     const splitData = base64Data.split(",");
+    if (splitData.length < 2) throw new Error("Invalid base64 image data");
     const contentType = splitData[0].match(/:(.*?);/)[1];
     const byteCharacters = Utilities.base64Decode(splitData[1]);
     const blob = Utilities.newBlob(byteCharacters, contentType, filename);
@@ -178,6 +196,12 @@ function saveImageToDrive(base64Data, filename) {
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     return `https://drive.google.com/uc?export=view&id=${file.getId()}`;
   } catch (e) {
+    console.error(JSON.stringify({
+      event: "save_image_failed",
+      filename: filename,
+      message: e && e.message,
+      stack: e && e.stack
+    }));
     return "";
   }
 }
