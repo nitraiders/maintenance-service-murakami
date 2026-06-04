@@ -700,7 +700,9 @@
             successClose.onclick = closeModal;
             overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
             const openImageLightbox = (src, alt) => {
-                imageLightboxImg.src = src;
+                const displaySrc = getDisplayImageUrl(src || '');
+                console.info('[MSM news image modal] open', { src, displaySrc, alt });
+                imageLightboxImg.src = displaySrc;
                 imageLightboxImg.alt = alt || '作業実績画像';
                 imageLightbox.classList.add('active');
                 imageLightbox.setAttribute('aria-hidden', 'false');
@@ -770,13 +772,13 @@
                             const displayUrl = getDisplayImageUrl(imageUrls[0]);
                             imageHtml = `
                                 <div class="news-img-wrapper">
-                                    <img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(imageUrls[0])}" alt="${escapeHtml(item.content || 'メンテナンスサービス村上の作業実績')}" loading="lazy">
+                                    <img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(displayUrl)}" alt="${escapeHtml(item.content || 'メンテナンスサービス村上の作業実績')}" loading="lazy">
                                 </div>
                             `;
                         } else if (imageUrls.length > 1) {
                             const slides = imageUrls.map((url, imageIndex) => {
                                 const displayUrl = getDisplayImageUrl(url);
-                                return `<div class="news-slide"><img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(url)}" alt="${escapeHtml(`${item.content || 'メンテナンスサービス村上の作業実績'} ${imageIndex + 1}`)}" loading="lazy"></div>`;
+                                return `<div class="news-slide"><img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(displayUrl)}" alt="${escapeHtml(`${item.content || 'メンテナンスサービス村上の作業実績'} ${imageIndex + 1}`)}" loading="lazy"></div>`;
                             }).join('');
                             const dots = imageUrls.map((_, imageIndex) => `<span class="carousel-dot${imageIndex === 0 ? ' active' : ''}"></span>`).join('');
                             imageHtml = `
