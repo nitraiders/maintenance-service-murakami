@@ -311,10 +311,15 @@
             flex-direction: column;
             text-decoration: none;
             color: inherit;
+            cursor: pointer;
         }
         .news-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+        .news-card:focus-visible {
+            outline: 3px solid rgba(191, 161, 74, 0.45);
+            outline-offset: 4px;
         }
         .news-img-wrapper {
             width: 100%;
@@ -335,7 +340,7 @@
         .news-carousel { touch-action: pan-y; }
         .news-carousel-track { display: flex; height: 100%; transition: transform 0.3s ease; }
         .news-slide { flex: 0 0 100%; height: 100%; }
-        .news-img-wrapper img { cursor: zoom-in; }
+        .news-img-wrapper img { cursor: pointer; }
         .carousel-btn {
             position: absolute; top: 50%; transform: translateY(-50%);
             width: 34px; height: 34px; border-radius: 50%; border: none;
@@ -355,21 +360,54 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.25);
         }
         .carousel-dot.active { background: var(--accent); }
-        .image-lightbox {
+        .news-detail-modal {
             position: fixed; inset: 0; z-index: 100001;
             display: none; align-items: center; justify-content: center;
-            padding: 18px; background: rgba(0,0,0,0.9);
+            padding: 20px; background: rgba(0,0,0,0.72);
         }
-        .image-lightbox.active { display: flex; }
-        .image-lightbox img {
-            max-width: 96vw; max-height: 86vh; object-fit: contain;
-            border-radius: 8px; background: #111;
+        .news-detail-modal.active { display: flex; }
+        .news-detail-panel {
+            position: relative;
+            width: min(920px, 100%);
+            max-height: min(88vh, 780px);
+            overflow-y: auto;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.28);
         }
-        .image-lightbox-close {
-            position: absolute; top: 14px; right: 14px;
+        .news-detail-close {
+            position: sticky; top: 14px; margin-left: auto; margin-right: 14px;
             width: 44px; height: 44px; border-radius: 50%; border: none;
-            background: rgba(255,255,255,0.92); color: #111;
-            font-size: 28px; line-height: 1; cursor: pointer;
+            background: rgba(255,255,255,0.94); color: var(--text-main);
+            font-size: 28px; line-height: 1; cursor: pointer; z-index: 4;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+        }
+        .news-detail-content { padding: 0 32px 34px; }
+        .news-detail-modal .news-img-wrapper {
+            height: min(52vw, 360px);
+            min-height: 220px;
+            border-radius: 16px;
+            margin: -20px 0 28px;
+        }
+        .news-detail-modal .news-img-wrapper img {
+            cursor: default;
+            transform: none !important;
+        }
+        .news-detail-meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .news-detail-text {
+            color: var(--text-main);
+            font-size: 1.02rem;
+            line-height: 1.9;
+            font-weight: 500;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
         .news-body {
             padding: 24px;
@@ -421,6 +459,27 @@
             }
             .news-img-wrapper {
                 height: 180px;
+            }
+            .news-detail-modal {
+                padding: 12px;
+                align-items: flex-end;
+            }
+            .news-detail-panel {
+                max-height: 92vh;
+                border-radius: 18px 18px 0 0;
+            }
+            .news-detail-content {
+                padding: 0 18px 28px;
+            }
+            .news-detail-modal .news-img-wrapper {
+                height: min(62vw, 280px);
+                min-height: 190px;
+                border-radius: 14px;
+                margin-bottom: 22px;
+            }
+            .news-detail-text {
+                font-size: 0.98rem;
+                line-height: 1.85;
             }
         }
     </style>
@@ -614,9 +673,11 @@
         </div>
     </div>
 
-    <div class="image-lightbox" id="image-lightbox" aria-hidden="true">
-        <button class="image-lightbox-close" id="image-lightbox-close" type="button" aria-label="閉じる">&times;</button>
-        <img id="image-lightbox-img" src="" alt="">
+    <div class="news-detail-modal" id="news-detail-modal" aria-hidden="true">
+        <div class="news-detail-panel" role="dialog" aria-modal="true" aria-label="作業実績の詳細">
+            <button class="news-detail-close" id="news-detail-close" type="button" aria-label="閉じる">&times;</button>
+            <div class="news-detail-content" id="news-detail-content"></div>
+        </div>
     </div>
 
     <footer>
@@ -679,9 +740,9 @@
             const hamburger = document.getElementById('hamburger');
             const navMenu = document.getElementById('nav-menu');
             const overlay = document.getElementById('contact-modal');
-            const imageLightbox = document.getElementById('image-lightbox');
-            const imageLightboxImg = document.getElementById('image-lightbox-img');
-            const imageLightboxClose = document.getElementById('image-lightbox-close');
+            const newsDetailModal = document.getElementById('news-detail-modal');
+            const newsDetailContent = document.getElementById('news-detail-content');
+            const newsDetailClose = document.getElementById('news-detail-close');
             const openBtns = document.querySelectorAll('.open-modal-btn');
             const closeBtn = document.getElementById('modal-close');
             const successClose = document.getElementById('success-close');
@@ -699,23 +760,65 @@
             closeBtn.onclick = closeModal;
             successClose.onclick = closeModal;
             overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
-            const openImageLightbox = (src, alt) => {
-                const displaySrc = getDisplayImageUrl(src || '');
-                console.info('[MSM news image modal] open', { src, displaySrc, alt });
-                imageLightboxImg.src = displaySrc;
-                imageLightboxImg.alt = alt || '作業実績画像';
-                imageLightbox.classList.add('active');
-                imageLightbox.setAttribute('aria-hidden', 'false');
+            const createNewsImageHtml = (imageUrls, altBase) => {
+                if (imageUrls.length === 0) return '';
+                if (imageUrls.length === 1) {
+                    const displayUrl = getDisplayImageUrl(imageUrls[0]);
+                    return `
+                        <div class="news-img-wrapper">
+                            <img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(displayUrl)}" alt="${escapeHtml(altBase)}" loading="lazy">
+                        </div>
+                    `;
+                }
+                const slides = imageUrls.map((url, imageIndex) => {
+                    const displayUrl = getDisplayImageUrl(url);
+                    return `<div class="news-slide"><img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(displayUrl)}" alt="${escapeHtml(`${altBase} ${imageIndex + 1}`)}" loading="lazy"></div>`;
+                }).join('');
+                const dots = imageUrls.map((_, imageIndex) => `<span class="carousel-dot${imageIndex === 0 ? ' active' : ''}"></span>`).join('');
+                return `
+                    <div class="news-img-wrapper news-carousel">
+                        <div class="news-carousel-track">${slides}</div>
+                        <button class="carousel-btn prev" type="button" aria-label="前の画像">&lsaquo;</button>
+                        <button class="carousel-btn next" type="button" aria-label="次の画像">&rsaquo;</button>
+                        <div class="carousel-dots">${dots}</div>
+                    </div>
+                `;
+            };
+
+            const openNewsDetailModal = (item) => {
+                const imageUrls = normalizeImageUrls(item);
+                const altBase = item.content || 'メンテナンスサービス村上の作業実績';
+                const displayUrls = imageUrls.map(getDisplayImageUrl);
+                console.info('[MSM news detail modal] open', {
+                    date: item.date,
+                    category: item.category || 'お知らせ',
+                    imageUrls,
+                    displayUrls
+                });
+                newsDetailContent.innerHTML = `
+                    ${createNewsImageHtml(imageUrls, altBase)}
+                    <div class="news-detail-meta">
+                        <span class="news-date">${escapeHtml(item.date)}</span>
+                        <span class="news-category">${escapeHtml(item.category || 'お知らせ')}</span>
+                    </div>
+                    <div class="news-detail-text">${escapeHtml(item.content)}</div>
+                `;
+                setupCarousel(newsDetailContent);
+                newsDetailModal.classList.add('active');
+                newsDetailModal.setAttribute('aria-hidden', 'false');
                 document.body.classList.add('modal-open');
             };
-            const closeImageLightbox = () => {
-                imageLightbox.classList.remove('active');
-                imageLightbox.setAttribute('aria-hidden', 'true');
-                imageLightboxImg.src = '';
+            const closeNewsDetailModal = () => {
+                newsDetailModal.classList.remove('active');
+                newsDetailModal.setAttribute('aria-hidden', 'true');
+                newsDetailContent.innerHTML = '';
                 document.body.classList.remove('modal-open');
             };
-            imageLightboxClose.onclick = closeImageLightbox;
-            imageLightbox.onclick = (e) => { if (e.target === imageLightbox) closeImageLightbox(); };
+            newsDetailClose.onclick = closeNewsDetailModal;
+            newsDetailModal.onclick = (e) => { if (e.target === newsDetailModal) closeNewsDetailModal(); };
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && newsDetailModal.classList.contains('active')) closeNewsDetailModal();
+            });
 
             const navLinks = document.querySelectorAll('.nav-menu a:not(.btn-call):not(.btn-mail)');
             navLinks.forEach(link => {
@@ -766,30 +869,11 @@
                     news.forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'news-card';
+                        card.setAttribute('role', 'button');
+                        card.setAttribute('tabindex', '0');
+                        card.setAttribute('aria-label', '作業実績の詳細を開く');
                         const imageUrls = normalizeImageUrls(item);
-                        let imageHtml = '';
-                        if (imageUrls.length === 1) {
-                            const displayUrl = getDisplayImageUrl(imageUrls[0]);
-                            imageHtml = `
-                                <div class="news-img-wrapper">
-                                    <img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(displayUrl)}" alt="${escapeHtml(item.content || 'メンテナンスサービス村上の作業実績')}" loading="lazy">
-                                </div>
-                            `;
-                        } else if (imageUrls.length > 1) {
-                            const slides = imageUrls.map((url, imageIndex) => {
-                                const displayUrl = getDisplayImageUrl(url);
-                                return `<div class="news-slide"><img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(displayUrl)}" alt="${escapeHtml(`${item.content || 'メンテナンスサービス村上の作業実績'} ${imageIndex + 1}`)}" loading="lazy"></div>`;
-                            }).join('');
-                            const dots = imageUrls.map((_, imageIndex) => `<span class="carousel-dot${imageIndex === 0 ? ' active' : ''}"></span>`).join('');
-                            imageHtml = `
-                                <div class="news-img-wrapper news-carousel">
-                                    <div class="news-carousel-track">${slides}</div>
-                                    <button class="carousel-btn prev" type="button" aria-label="前の画像">&lsaquo;</button>
-                                    <button class="carousel-btn next" type="button" aria-label="次の画像">&rsaquo;</button>
-                                    <div class="carousel-dots">${dots}</div>
-                                </div>
-                            `;
-                        }
+                        const imageHtml = createNewsImageHtml(imageUrls, item.content || 'メンテナンスサービス村上の作業実績');
                         card.innerHTML = `
                             ${imageHtml}
                             <div class="news-body">
@@ -807,9 +891,19 @@
                                 if (slide) slide.style.display = 'none';
                                 else if (wrapper) wrapper.style.display = 'none';
                             }, { once: true });
-                            img.addEventListener('click', () => openImageLightbox(img.dataset.fullSrc || img.src, img.alt));
                         });
                         setupCarousel(card);
+                        card.addEventListener('click', (e) => {
+                            const carousel = e.target.closest('.news-carousel');
+                            if (carousel && carousel.dataset.swiped === 'true') return;
+                            openNewsDetailModal(item);
+                        });
+                        card.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                openNewsDetailModal(item);
+                            }
+                        });
                         newsContainer.appendChild(card);
                     });
                 } catch (error) {
@@ -837,10 +931,17 @@
 
                 prev.addEventListener('click', (e) => { e.stopPropagation(); showSlide(current - 1); });
                 next.addEventListener('click', (e) => { e.stopPropagation(); showSlide(current + 1); });
-                carousel.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+                carousel.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                    delete carousel.dataset.swiped;
+                }, { passive: true });
                 carousel.addEventListener('touchend', (e) => {
                     const diff = e.changedTouches[0].clientX - startX;
-                    if (Math.abs(diff) > 40) showSlide(current + (diff < 0 ? 1 : -1));
+                    if (Math.abs(diff) > 40) {
+                        carousel.dataset.swiped = 'true';
+                        showSlide(current + (diff < 0 ? 1 : -1));
+                        window.setTimeout(() => delete carousel.dataset.swiped, 350);
+                    }
                 }, { passive: true });
             }
 
