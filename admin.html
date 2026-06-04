@@ -32,6 +32,7 @@
         .item-text { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .del-btn { background: #dc3545; padding: 5px 12px; font-size: 12px; width: auto; margin-top: 0; border-radius: 5px; }
         .del-btn:hover { background: #a71d2a; }
+        .image-count { margin-top: 6px; color: #666; font-size: 13px; line-height: 1.5; }
 
         @media (max-width: 430px) {
             html, body { width: 100%; overflow-x: hidden; }
@@ -75,7 +76,8 @@
             </div>
             <div class="form-group">
                 <label>画像 (カメラ/フォルダ)</label>
-                <input type="file" id="post-image" accept="image/*">
+                <input type="file" id="post-image" accept="image/*" multiple>
+                <div class="image-count" id="image-count">選択画像: 0枚（最大5枚）</div>
             </div>
             <button id="submit-btn" onclick="submitPost()">投稿する</button>
             <p class="success-msg" id="news-success">投稿完了！</p>
@@ -133,6 +135,7 @@
         } else { alert('パスワードが違います'); }
     }
     document.getElementById('login-section').style.display = 'block';
+    document.getElementById('post-image').addEventListener('change', updateSelectedImageCount);
 
     function switchTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -149,6 +152,19 @@
 
     let postsData = [];
     let faqsData = [];
+
+    function updateSelectedImageCount() {
+        const fileInput = document.getElementById('post-image');
+        const countLabel = document.getElementById('image-count');
+        const count = fileInput.files.length;
+        if (count > 5) {
+            alert('画像は最大5枚まで選択できます');
+            fileInput.value = '';
+            countLabel.textContent = '選択画像: 0枚（最大5枚）';
+            return;
+        }
+        countLabel.textContent = `選択画像: ${count}枚（最大5枚）`;
+    }
 
     async function loadPosts() {
         const listDiv = document.getElementById('news-list');
@@ -242,17 +258,23 @@
         const fileInput = document.getElementById('post-image');
         const content = document.getElementById('post-content').value;
         if (!content) return alert('内容を入力してください');
-        btn.disabled = true; btn.innerText = '送信中...';
-        let base64Image = "";
-        if (fileInput.files.length > 0) { base64Image = await resizeAndConvert(fileInput.files[0]); }
+        const files = Array.from(fileInput.files);
+        if (files.length > 5) return alert('画像は最大5枚まで選択できます');
+        btn.disabled = true; btn.innerText = files.length ? '画像圧縮中...' : '送信中...';
         try {
+            let base64Images = [];
+            if (files.length > 0) {
+                base64Images = await Promise.all(files.map(file => resizeAndConvert(file)));
+                btn.innerText = '送信中...';
+            }
             await fetch(GAS_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: JSON.stringify({ action: 'post_news', password: CORRECT_PASS, date: document.getElementById('post-date').value, category: document.getElementById('post-category').value, content: content, image: base64Image })
+                body: JSON.stringify({ action: 'post_news', password: CORRECT_PASS, date: document.getElementById('post-date').value, category: document.getElementById('post-category').value, content: content, image: base64Images[0] || "", images: base64Images })
             });
             document.getElementById('news-success').style.display = 'block';
             document.getElementById('post-content').value = ''; fileInput.value = '';
+            updateSelectedImageCount();
             setTimeout(() => { document.getElementById('news-success').style.display = 'none'; }, 5000);
             loadPosts();
         } catch (e) { alert('エラーが発生しました'); } finally { btn.disabled = false; btn.innerText = '投稿する'; }
@@ -279,21 +301,30 @@
     }
 
     function resizeAndConvert(file) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
+                    const MAX_SIZE = 1600;
                     let width = img.width; let height = img.height;
-                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    if (Math.max(width, height) > MAX_SIZE) {
+                        const ratio = MAX_SIZE / Math.max(width, height);
+                        width = Math.round(width * ratio);
+                        height = Math.round(height * ratio);
+                    }
                     canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.8));
                 };
+                img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
                 img.src = e.target.result;
             };
+            reader.onerror = () => reject(new Error('画像ファイルの読み込みに失敗しました'));
             reader.readAsDataURL(file);
         });
     }

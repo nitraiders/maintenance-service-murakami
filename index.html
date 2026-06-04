@@ -332,6 +332,45 @@
         .news-card:hover .news-img-wrapper img {
             transform: scale(1.05);
         }
+        .news-carousel { touch-action: pan-y; }
+        .news-carousel-track { display: flex; height: 100%; transition: transform 0.3s ease; }
+        .news-slide { flex: 0 0 100%; height: 100%; }
+        .news-img-wrapper img { cursor: zoom-in; }
+        .carousel-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 34px; height: 34px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.88); color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 2; box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+        }
+        .carousel-btn.prev { left: 8px; }
+        .carousel-btn.next { right: 8px; }
+        .carousel-dots {
+            position: absolute; left: 0; right: 0; bottom: 10px;
+            display: flex; justify-content: center; gap: 6px; z-index: 2;
+        }
+        .carousel-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: rgba(255,255,255,0.65);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+        }
+        .carousel-dot.active { background: var(--accent); }
+        .image-lightbox {
+            position: fixed; inset: 0; z-index: 100001;
+            display: none; align-items: center; justify-content: center;
+            padding: 18px; background: rgba(0,0,0,0.9);
+        }
+        .image-lightbox.active { display: flex; }
+        .image-lightbox img {
+            max-width: 96vw; max-height: 86vh; object-fit: contain;
+            border-radius: 8px; background: #111;
+        }
+        .image-lightbox-close {
+            position: absolute; top: 14px; right: 14px;
+            width: 44px; height: 44px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.92); color: #111;
+            font-size: 28px; line-height: 1; cursor: pointer;
+        }
         .news-body {
             padding: 24px;
             flex-grow: 1;
@@ -575,6 +614,11 @@
         </div>
     </div>
 
+    <div class="image-lightbox" id="image-lightbox" aria-hidden="true">
+        <button class="image-lightbox-close" id="image-lightbox-close" type="button" aria-label="閉じる">&times;</button>
+        <img id="image-lightbox-img" src="" alt="">
+    </div>
+
     <footer>
         <div class="container" style="padding: 60px 0; text-align: center; border-top: 1px solid #eee;">
             <p style="color: var(--text-sub); font-size: 0.85rem;">&copy; 2026 メンテナンスサービス 村上 All Rights Reserved.</p>
@@ -594,6 +638,38 @@
                 "'": '&#39;'
             }[char]));
 
+            const normalizeImageUrls = (item) => {
+                const values = [];
+                const addUrl = (url) => {
+                    if (typeof url === 'string' && url.startsWith('http') && !values.includes(url)) values.push(url);
+                };
+                if (Array.isArray(item.images)) {
+                    item.images.forEach(addUrl);
+                } else if (typeof item.images === 'string' && item.images.trim().startsWith('[')) {
+                    try {
+                        const parsed = JSON.parse(item.images);
+                        if (Array.isArray(parsed)) parsed.forEach(addUrl);
+                    } catch (e) {}
+                }
+                if (typeof item.image === 'string' && item.image.trim().startsWith('[')) {
+                    try {
+                        const parsed = JSON.parse(item.image);
+                        if (Array.isArray(parsed)) parsed.forEach(addUrl);
+                    } catch (e) {}
+                } else {
+                    addUrl(item.image);
+                }
+                return values.slice(0, 5);
+            };
+
+            const getDisplayImageUrl = (url) => {
+                const fileIdMatch = url.match(/id=([^&]+)/);
+                if (url.includes('drive.google.com') && fileIdMatch) {
+                    return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileIdMatch[1])}&sz=w1000`;
+                }
+                return url;
+            };
+
         document.addEventListener('DOMContentLoaded', () => {
             // 電話番号リンクの統一設定
             document.querySelectorAll('.call-link').forEach(link => {
@@ -603,6 +679,9 @@
             const hamburger = document.getElementById('hamburger');
             const navMenu = document.getElementById('nav-menu');
             const overlay = document.getElementById('contact-modal');
+            const imageLightbox = document.getElementById('image-lightbox');
+            const imageLightboxImg = document.getElementById('image-lightbox-img');
+            const imageLightboxClose = document.getElementById('image-lightbox-close');
             const openBtns = document.querySelectorAll('.open-modal-btn');
             const closeBtn = document.getElementById('modal-close');
             const successClose = document.getElementById('success-close');
@@ -620,6 +699,21 @@
             closeBtn.onclick = closeModal;
             successClose.onclick = closeModal;
             overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+            const openImageLightbox = (src, alt) => {
+                imageLightboxImg.src = src;
+                imageLightboxImg.alt = alt || '作業実績画像';
+                imageLightbox.classList.add('active');
+                imageLightbox.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+            };
+            const closeImageLightbox = () => {
+                imageLightbox.classList.remove('active');
+                imageLightbox.setAttribute('aria-hidden', 'true');
+                imageLightboxImg.src = '';
+                document.body.classList.remove('modal-open');
+            };
+            imageLightboxClose.onclick = closeImageLightbox;
+            imageLightbox.onclick = (e) => { if (e.target === imageLightbox) closeImageLightbox(); };
 
             const navLinks = document.querySelectorAll('.nav-menu a:not(.btn-call):not(.btn-mail)');
             navLinks.forEach(link => {
@@ -670,17 +764,27 @@
                     news.forEach(item => {
                         const card = document.createElement('div');
                         card.className = 'news-card';
-                        const originalImageUrl = typeof item.image === 'string' ? item.image : '';
+                        const imageUrls = normalizeImageUrls(item);
                         let imageHtml = '';
-                        if (originalImageUrl.startsWith('http')) {
-                            let displayUrl = originalImageUrl;
-                            const fileIdMatch = originalImageUrl.match(/id=([^&]+)/);
-                            if (originalImageUrl.includes('drive.google.com') && fileIdMatch) {
-                                displayUrl = `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileIdMatch[1])}&sz=w1000`;
-                            }
+                        if (imageUrls.length === 1) {
+                            const displayUrl = getDisplayImageUrl(imageUrls[0]);
                             imageHtml = `
                                 <div class="news-img-wrapper">
-                                    <img src="${escapeHtml(displayUrl)}" alt="${escapeHtml(item.content || 'メンテナンスサービス村上の作業実績')}" loading="lazy">
+                                    <img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(imageUrls[0])}" alt="${escapeHtml(item.content || 'メンテナンスサービス村上の作業実績')}" loading="lazy">
+                                </div>
+                            `;
+                        } else if (imageUrls.length > 1) {
+                            const slides = imageUrls.map((url, imageIndex) => {
+                                const displayUrl = getDisplayImageUrl(url);
+                                return `<div class="news-slide"><img src="${escapeHtml(displayUrl)}" data-full-src="${escapeHtml(url)}" alt="${escapeHtml(`${item.content || 'メンテナンスサービス村上の作業実績'} ${imageIndex + 1}`)}" loading="lazy"></div>`;
+                            }).join('');
+                            const dots = imageUrls.map((_, imageIndex) => `<span class="carousel-dot${imageIndex === 0 ? ' active' : ''}"></span>`).join('');
+                            imageHtml = `
+                                <div class="news-img-wrapper news-carousel">
+                                    <div class="news-carousel-track">${slides}</div>
+                                    <button class="carousel-btn prev" type="button" aria-label="前の画像">&lsaquo;</button>
+                                    <button class="carousel-btn next" type="button" aria-label="次の画像">&rsaquo;</button>
+                                    <div class="carousel-dots">${dots}</div>
                                 </div>
                             `;
                         }
@@ -694,19 +798,48 @@
                                 <p class="news-content">${escapeHtml(item.content)}</p>
                             </div>
                         `;
-                        const img = card.querySelector('img');
-                        if (img) {
+                        card.querySelectorAll('.news-img-wrapper img').forEach(img => {
                             img.addEventListener('error', () => {
+                                const slide = img.closest('.news-slide');
                                 const wrapper = img.closest('.news-img-wrapper');
-                                if (wrapper) wrapper.style.display = 'none';
+                                if (slide) slide.style.display = 'none';
+                                else if (wrapper) wrapper.style.display = 'none';
                             }, { once: true });
-                        }
+                            img.addEventListener('click', () => openImageLightbox(img.dataset.fullSrc || img.src, img.alt));
+                        });
+                        setupCarousel(card);
                         newsContainer.appendChild(card);
                     });
                 } catch (error) {
                     console.error('Fetch news error:', error);
                     newsContainer.innerHTML = '<div class="news-loading">情報の取得に失敗しました。</div>';
                 }
+            }
+
+            function setupCarousel(card) {
+                const carousel = card.querySelector('.news-carousel');
+                if (!carousel) return;
+                const track = carousel.querySelector('.news-carousel-track');
+                const slides = carousel.querySelectorAll('.news-slide');
+                const dots = carousel.querySelectorAll('.carousel-dot');
+                const prev = carousel.querySelector('.carousel-btn.prev');
+                const next = carousel.querySelector('.carousel-btn.next');
+                let current = 0;
+                let startX = 0;
+
+                const showSlide = (index) => {
+                    current = (index + slides.length) % slides.length;
+                    track.style.transform = `translateX(-${current * 100}%)`;
+                    dots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === current));
+                };
+
+                prev.addEventListener('click', (e) => { e.stopPropagation(); showSlide(current - 1); });
+                next.addEventListener('click', (e) => { e.stopPropagation(); showSlide(current + 1); });
+                carousel.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+                carousel.addEventListener('touchend', (e) => {
+                    const diff = e.changedTouches[0].clientX - startX;
+                    if (Math.abs(diff) > 40) showSlide(current + (diff < 0 ? 1 : -1));
+                }, { passive: true });
             }
 
             // --- FAQ取得処理 (GET) ---

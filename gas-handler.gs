@@ -19,12 +19,14 @@ function doGet(e) {
   const news = [];
   for (let i = 1; i < newsData.length; i++) {
     if (!newsData[i][2]) continue; // 内容がない場合はスキップ
+    const imageUrls = parseImageUrls(newsData[i][3]);
     news.push({
       id: i, // 行番号をID代わりにする（簡易版）
       date: newsData[i][0] instanceof Date ? Utilities.formatDate(newsData[i][0], "Asia/Tokyo", "yyyy-MM-dd") : newsData[i][0],
       category: newsData[i][1],
       content: newsData[i][2],
-      image: newsData[i][3]
+      image: imageUrls[0] || "",
+      images: imageUrls
     });
   }
   
@@ -87,14 +89,19 @@ function doPost(e) {
 
 function handlePostNews(ss, params) {
   const sheet = ss.getSheetByName("news") || createNewsSheet(ss);
-  let imageUrl = "";
+  const imageUrls = [];
+  const base64Images = normalizeBase64Images(params);
   
   // 画像がある場合はGoogleドライブに保存
-  if (params.image && params.image.startsWith("data:image")) {
-    imageUrl = saveImageToDrive(params.image, `news_${Date.now()}.jpg`);
+  for (let i = 0; i < Math.min(base64Images.length, 5); i++) {
+    if (base64Images[i] && base64Images[i].startsWith("data:image")) {
+      const imageUrl = saveImageToDrive(base64Images[i], `news_${Date.now()}_${i + 1}.jpg`);
+      if (imageUrl) imageUrls.push(imageUrl);
+    }
   }
+  const imageValue = imageUrls.length > 1 ? JSON.stringify(imageUrls) : (imageUrls[0] || "");
   
-  sheet.appendRow([params.date || new Date(), params.category || "お知らせ", params.content, imageUrl, new Date()]);
+  sheet.appendRow([params.date || new Date(), params.category || "お知らせ", params.content, imageValue, new Date()]);
   return createJsonResponse({ status: "success", message: "投稿完了" });
 }
 
@@ -173,6 +180,43 @@ function saveImageToDrive(base64Data, filename) {
   } catch (e) {
     return "";
   }
+}
+
+function normalizeBase64Images(params) {
+  if (Array.isArray(params.images)) {
+    return params.images.filter(Boolean);
+  }
+  if (typeof params.images === "string" && params.images) {
+    try {
+      const parsed = JSON.parse(params.images);
+      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    } catch (e) {
+      if (params.images.startsWith("data:image")) return [params.images];
+    }
+  }
+  if (params.image && params.image.startsWith("data:image")) {
+    return [params.image];
+  }
+  return [];
+}
+
+function parseImageUrls(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (typeof value !== "string") return [];
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+  if (trimmed.charAt(0) === "[") {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return parsed.filter(function(url) {
+        return typeof url === "string" && url;
+      });
+    } catch (e) {
+      return [];
+    }
+  }
+  return [trimmed];
 }
 
 function createNewsSheet(ss) {
