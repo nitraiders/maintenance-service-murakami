@@ -12,9 +12,18 @@ const ADMIN_PASSWORD = "msm2724";
 
 function doGet(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
+  logSpreadsheetContext(ss, "doGet");
   
   // 1. ニュース取得
-  const newsSheet = ss.getSheetByName("news") || createNewsSheet(ss);
+  const newsSheet = getRequiredSheet(ss, "news", "doGet");
+  if (!newsSheet) {
+    return createJsonResponse({
+      status: "error",
+      message: "newsシートが見つかりません",
+      spreadsheetId: ss.getId(),
+      sheets: getSheetNames(ss)
+    });
+  }
   const newsData = newsSheet.getDataRange().getValues();
   const news = [];
   for (let i = 1; i < newsData.length; i++) {
@@ -31,7 +40,15 @@ function doGet(e) {
   }
   
   // 2. FAQ取得
-  const faqSheet = ss.getSheetByName("faq") || createFaqSheet(ss);
+  const faqSheet = getRequiredSheet(ss, "faq", "doGet");
+  if (!faqSheet) {
+    return createJsonResponse({
+      status: "error",
+      message: "faqシートが見つかりません",
+      spreadsheetId: ss.getId(),
+      sheets: getSheetNames(ss)
+    });
+  }
   const faqData = faqSheet.getDataRange().getValues();
   const faq = [];
   for (let i = 1; i < faqData.length; i++) {
@@ -66,6 +83,7 @@ function doPost(e) {
   }
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
+  logSpreadsheetContext(ss, "doPost");
 
   // アクション分岐
   switch (params.action) {
@@ -88,7 +106,15 @@ function doPost(e) {
 // ──────────────────────────────────────────────────────────────
 
 function handlePostNews(ss, params) {
-  const sheet = ss.getSheetByName("news") || createNewsSheet(ss);
+  const sheet = getRequiredSheet(ss, "news", "post_news");
+  if (!sheet) {
+    return createJsonResponse({
+      status: "error",
+      message: "newsシートが見つからないため投稿を中止しました",
+      spreadsheetId: ss.getId(),
+      sheets: getSheetNames(ss)
+    });
+  }
   const imageUrls = [];
   const base64Images = normalizeBase64Images(params);
   console.log(JSON.stringify({
@@ -139,7 +165,15 @@ function handleDeleteNews(ss, params) {
 }
 
 function handlePostFaq(ss, params) {
-  const sheet = ss.getSheetByName("faq") || createFaqSheet(ss);
+  const sheet = getRequiredSheet(ss, "faq", "post_faq");
+  if (!sheet) {
+    return createJsonResponse({
+      status: "error",
+      message: "faqシートが見つからないため投稿を中止しました",
+      spreadsheetId: ss.getId(),
+      sheets: getSheetNames(ss)
+    });
+  }
   sheet.appendRow([params.question, params.answer, new Date()]);
   return createJsonResponse({ status: "success", message: "FAQ追加完了" });
 }
@@ -207,21 +241,25 @@ function saveImageToDrive(base64Data, filename) {
 }
 
 function normalizeBase64Images(params) {
+  const values = [];
+  const addImage = function(value) {
+    if (typeof value === "string" && value.startsWith("data:image") && values.indexOf(value) === -1) {
+      values.push(value);
+    }
+  };
   if (Array.isArray(params.images)) {
-    return params.images.filter(Boolean);
+    params.images.forEach(addImage);
   }
   if (typeof params.images === "string" && params.images) {
     try {
       const parsed = JSON.parse(params.images);
-      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+      if (Array.isArray(parsed)) parsed.forEach(addImage);
     } catch (e) {
-      if (params.images.startsWith("data:image")) return [params.images];
+      addImage(params.images);
     }
   }
-  if (params.image && params.image.startsWith("data:image")) {
-    return [params.image];
-  }
-  return [];
+  addImage(params.image);
+  return values.slice(0, 2);
 }
 
 function parseImageUrls(value) {
@@ -243,16 +281,33 @@ function parseImageUrls(value) {
   return [trimmed];
 }
 
-function createNewsSheet(ss) {
-  const sheet = ss.insertSheet("news");
-  sheet.appendRow(["日付", "カテゴリ", "内容", "画像URL", "登録日時"]);
+function getRequiredSheet(ss, sheetName, context) {
+  const sheet = ss.getSheetByName(sheetName);
+  console.log(JSON.stringify({
+    event: "sheet_lookup",
+    context: context,
+    spreadsheetId: ss.getId(),
+    requestedSheet: sheetName,
+    found: !!sheet,
+    sheets: getSheetNames(ss)
+  }));
   return sheet;
 }
 
-function createFaqSheet(ss) {
-  const sheet = ss.insertSheet("faq");
-  sheet.appendRow(["質問", "回答", "登録日時"]);
-  return sheet;
+function getSheetNames(ss) {
+  return ss.getSheets().map(function(sheet) {
+    return sheet.getName();
+  });
+}
+
+function logSpreadsheetContext(ss, context) {
+  console.log(JSON.stringify({
+    event: "spreadsheet_context",
+    context: context,
+    spreadsheetId: ss.getId(),
+    spreadsheetName: ss.getName(),
+    sheets: getSheetNames(ss)
+  }));
 }
 
 function createJsonResponse(data) {

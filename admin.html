@@ -77,7 +77,7 @@
             <div class="form-group">
                 <label>画像 (カメラ/フォルダ)</label>
                 <input type="file" id="post-image" accept="image/*" multiple>
-                <div class="image-count" id="image-count">選択画像: 0枚（最大5枚）</div>
+                <div class="image-count" id="image-count">選択画像: 0枚（最大2枚）</div>
             </div>
             <button id="submit-btn" onclick="submitPost()">投稿する</button>
             <p class="success-msg" id="news-success">投稿完了！</p>
@@ -179,13 +179,13 @@
         const fileInput = document.getElementById('post-image');
         const countLabel = document.getElementById('image-count');
         const count = fileInput.files.length;
-        if (count > 5) {
-            alert('画像は最大5枚まで選択できます');
+        if (count > 2) {
+            alert('画像は一時的に最大2枚までに制限しています');
             fileInput.value = '';
-            countLabel.textContent = '選択画像: 0枚（最大5枚）';
+            countLabel.textContent = '選択画像: 0枚（最大2枚）';
             return;
         }
-        countLabel.textContent = `選択画像: ${count}枚（最大5枚）`;
+        countLabel.textContent = `選択画像: ${count}枚（最大2枚）`;
         if (count > 0) console.info('[MSM admin] selected images', getFileDebugInfo(Array.from(fileInput.files)));
     }
 
@@ -282,7 +282,7 @@
         const content = document.getElementById('post-content').value;
         if (!content) return alert('内容を入力してください');
         const files = Array.from(fileInput.files);
-        if (files.length > 5) return alert('画像は最大5枚まで選択できます');
+        if (files.length > 2) return alert('画像は一時的に最大2枚までに制限しています');
         btn.disabled = true; btn.innerText = files.length ? '画像圧縮中...' : '送信中...';
         try {
             console.info('[MSM admin] submitPost start', {
@@ -298,10 +298,16 @@
                 }
                 btn.innerText = '送信中...';
             }
-            const payload = { action: 'post_news', password: CORRECT_PASS, date: document.getElementById('post-date').value, category: document.getElementById('post-category').value, content: content, image: base64Images[0] || "", images: base64Images };
+            const payload = { action: 'post_news', password: CORRECT_PASS, date: document.getElementById('post-date').value, category: document.getElementById('post-category').value, content: content };
+            if (base64Images.length === 1) {
+                payload.image = base64Images[0];
+            } else if (base64Images.length > 1) {
+                payload.images = base64Images;
+            }
             const payloadText = JSON.stringify(payload);
             console.info('[MSM admin] post_news payload ready', {
                 imageCount: base64Images.length,
+                payloadMode: base64Images.length <= 1 ? 'image' : 'images',
                 imageSizes: base64Images.map(estimateDataUrlBytes).map(formatBytes),
                 payloadSize: formatBytes(new Blob([payloadText]).size)
             });
